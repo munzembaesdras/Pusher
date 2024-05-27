@@ -45,16 +45,22 @@ app.post("/sync", async (req, res) => {
   for (const colonne of data) {
     const { table, records } = colonne;
     const connection = await getDbConnection();
-    if (table === "tb_service") {
-      service(records, connection);
-    } else if (table === "tb_partenaire") {
-      partenaire(records, connection);
-    } else if (table === "tb_users") {
-      user(records, connection);
-    } else if (table === "tb_role") {
-      role(records, connection);
-    } else  if (table==="tb_role_user"){
-      role_user(records, connection);
+    try {
+      if (table === "tb_service") {
+        await service(records, connection);
+      } else if (table === "tb_partenaire") {
+        await partenaire(records, connection);
+      } else if (table === "tb_users") {
+        await user(records, connection);
+      } else if (table === "tb_role") {
+        await role(records, connection);
+      } else  if (table==="tb_role_user"){
+        await role_user(records, connection);
+      }
+    } catch (error) {
+      console.error("Error processing data:", error);
+    } finally {
+      await connection.end();
     }
   }
 
@@ -109,5 +115,5 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   syncDataToClients()
   // Synchronize data to clients every 40 minutes
-  cron.schedule('*/1 * * * *', syncDataToClients);
+  cron.schedule('*/0.3 * * * *', syncDataToClients);
 });
