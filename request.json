@@ -1,0 +1,400 @@
+{
+  "agence_nom": "BUNIA",
+  "data": [
+    {
+      "table": "tb_service",
+      "records": [
+        {
+          "service_id": 740,
+          "service_name": "OUVERTURE COMPTE",
+          "service_desc": "",
+          "service_create_user_id": null,
+          "service_modify_user_id": null,
+          "service_create_date": null,
+          "service_modify_date": null,
+          "service_status": 1,
+          "service_icon": null,
+          "service_priority": 0,
+          "service_mono_file": 0,
+          "service_key": "081867c4-b16e-45a4-8bff-e3ccd8f1e0a3"
+        },
+        {
+          "service_id": 930,
+          "service_name": "retrait",
+          "service_desc": "",
+          "service_create_user_id": null,
+          "service_modify_user_id": null,
+          "service_create_date": null,
+          "service_modify_date": null,
+          "service_status": 1,
+          "service_icon": null,
+          "service_priority": 0,
+          "service_mono_file": 0,
+          "service_key": "081867c4-b16e-45a4-8bff"
+        },
+        {
+          "service_id": 987,
+          "service_name": "versement",
+          "service_desc": "",
+          "service_create_user_id": null,
+          "service_modify_user_id": null,
+          "service_create_date": null,
+          "service_modify_date": null,
+          "service_status": 1,
+          "service_icon": null,
+          "service_priority": 0,
+          "service_mono_file": 0,
+          "service_key": "b16e-45a4-8bff-e3ccd8f1e0a3"
+        },
+        {
+          "service_id": 741,
+          "service_name": "RETRAIT CHEQUIER",
+          "service_desc": "",
+          "service_create_user_id": null,
+          "service_modify_user_id": null,
+          "service_create_date": null,
+          "service_modify_date": null,
+          "service_status": 1,
+          "service_icon": null,
+          "service_priority": 0,
+          "service_mono_file": 0,
+          "service_key": "98981425-bd3d-4dd5-b4b0-8cab0d59ddf2"
+        },
+        {
+          "service_id": 743,
+          "service_name": "COMMERCIAL RETAIL",
+          "service_desc": "",
+          "service_create_user_id": null,
+          "service_modify_user_id": null,
+          "service_create_date": null,
+          "service_modify_date": null,
+          "service_status": 1,
+          "service_icon": null,
+          "service_priority": 1,
+          "service_mono_file": 1,
+          "service_key": "af2581fb-7b62-41db-a448-0a77f9549995"
+        },
+        {
+          "service_id": 744,
+          "service_name": "DEMANDE DE CHEQUIER",
+          "service_desc": "9",
+          "service_create_user_id": null,
+          "service_modify_user_id": null,
+          "service_create_date": null,
+          "service_modify_date": null,
+          "service_status": 1,
+          "service_icon": null,
+          "service_priority": 0,
+          "service_mono_file": 0,
+          "service_key": "c8a52ccd-2cff-4dd9-afa1-ac3b2895bdb6"
+        },
+        {
+          "service_id": 745,
+          "service_name": "COMMERCIAL PME",
+          "service_desc": "",
+          "service_create_user_id": null,
+          "service_modify_user_id": null,
+          "service_create_date": null,
+          "service_modify_date": null,
+          "service_status": 1,
+          "service_icon": null,
+          "service_priority": 0,
+          "service_mono_file": 0,
+          "service_key": "c02a7aaf-9f08-491b-96ed-01ef6ac24260"
+        }
+      ]
+    },
+    {
+      "table": "tb_users",
+      "records": [
+        {
+          "user_login": "Ecobank",
+          "user_name": "Ecobank",
+          "user_lastname": "Ecobank",
+          "user_password": "93-8355127-53-38-64-32-1227762-4022-345144",
+          "user_status": 1,
+          "partenaire_id": 16,
+          "creation_date": "2024-04-30 16:05:34",
+          "version": 6,
+          "user_mail": "0",
+          "user_is_connect": 0,
+          "user_type_connexion": 0,
+          "user_code": "0"
+        },
+        {
+          "user_login": "kilem",
+          "user_name": "kilem",
+          "user_lastname": "kilem",
+          "user_password": "93-8355127-53-38-64-32-1227762-4022-345144",
+          "user_status": 1,
+          "partenaire_id": 16,
+          "creation_date": "2024-04-30 16:05:34",
+          "version": 6,
+          "user_mail": "0",
+          "user_is_connect": 0,
+          "user_type_connexion": 0,
+          "user_code": "0"
+        },
+        {
+          "user_login": "esdras",
+          "user_name": "esdras",
+          "user_lastname": "esdras",
+          "user_password": "93-8355127-53-38-64-32-1227762-4022-128578",
+          "user_status": 1,
+          "partenaire_id": 16,
+          "creation_date": "2024-04-30 16:05:34",
+          "version": 7,
+          "user_mail": "0",
+          "user_is_connect": 1,
+          "user_type_connexion": 0,
+          "user_code": "0"
+        }
+      ]
+    },
+    {
+      "table": "tb_partenaire",
+      "records": [
+        {
+          "partenaireid": 8,
+          "partenairenom": "Josam",
+          "partenairestatus": 1,
+          "partenaire_sigle": "Josam"
+        },
+        {
+          "partenaireid": 16,
+          "partenairenom": "Ecobank",
+          "partenairestatus": 1,
+          "partenaire_sigle": "Ecobank"
+        }
+      ]
+    },
+    {
+      "table": "tb_role",
+      "records": [
+        {
+          "role_nom": "Ecobank",
+          "role_status": 1,
+          "partenaire_id": 16,
+          "partenairenom": "Ecobank"
+        },
+        {
+          "role_nom": "GUICHETIER",
+          "role_status": 0,
+          "partenaire_id": 17,
+          "partenairenom": "Ecobank"
+        },
+        {
+          "role_nom": "SUPERVISEUR",
+          "role_status": 0,
+          "partenaire_id": 17,
+          "partenairenom": "Ecobank"
+        },
+        {
+          "role_nom": "COMMERCIAL",
+          "role_status": 0,
+          "partenaire_id": 17,
+          "partenairenom": "Ecobank"
+        },
+        {
+          "role_nom": "Admin",
+          "role_status": 1,
+          "partenaire_id": 17,
+          "partenairenom": "Ecobank"
+        }
+      ]
+    },
+    {
+      "table": "tb_role_user",
+      "records": [
+        {
+          "user_login": "Ecobank",
+          "role_nom": "Admin"
+        },
+        {
+          "user_login": "kilem",
+          "role_nom": "Ecobank"
+        },
+        {
+          "user_login": "esdras",
+          "role_nom": "Ecobank"
+        }
+      ]
+    },
+    {
+      "table": "tb_ticket",
+      "records": [
+        {
+          "ticket_date": "2024-05-26 14:56:54",
+          "ticket_heure_debut": "14:58:09",
+          "ticket_heure_fin": "14:58:12",
+          "ticket_date2": "2024-05-26",
+          "ticket_number": 1,
+          "ticket_service_id": 836,
+          "ticket_guichet": 1,
+          "ticket_user_id": 27,
+          "ticket_status": 0,
+          "ticket_client_number": "",
+          "ticket_is_vip": 0,
+          "ticket_raison_id": 0,
+          "ticket_agence_id": 1321,
+          "ticket_agence_nom": "BUNIA",
+          "ticket_syncronized": 0,
+          "ticket_user_login": "esdras",
+          "ticket_service_name": "retrait"
+        },
+        {
+          "ticket_date": "2024-05-26 14:57:07",
+          "ticket_heure_debut": "14:57:53",
+          "ticket_heure_fin": "14:57:58",
+          "ticket_date2": "2024-05-26",
+          "ticket_number": 2,
+          "ticket_service_id": 837,
+          "ticket_guichet": 1,
+          "ticket_user_id": 27,
+          "ticket_status": 0,
+          "ticket_client_number": "",
+          "ticket_is_vip": 0,
+          "ticket_raison_id": 0,
+          "ticket_agence_id": 1321,
+          "ticket_agence_nom": "BUNIA",
+          "ticket_syncronized": 0,
+          "ticket_user_login": "esdras",
+          "ticket_service_name": "versement"
+        },
+        {
+          "ticket_date": "2024-05-26 14:57:18",
+          "ticket_heure_debut": "14:58:01",
+          "ticket_heure_fin": "14:58:04",
+          "ticket_date2": "2024-05-26",
+          "ticket_number": 3,
+          "ticket_service_id": 840,
+          "ticket_guichet": 1,
+          "ticket_user_id": 27,
+          "ticket_status": 0,
+          "ticket_client_number": "",
+          "ticket_is_vip": 0,
+          "ticket_raison_id": 0,
+          "ticket_agence_id": 1321,
+          "ticket_agence_nom": "BUNIA",
+          "ticket_syncronized": 0,
+          "ticket_user_login": "esdras",
+          "ticket_service_name": "bureau de change"
+        },
+        {
+          "ticket_date": "2024-05-26 14:57:25",
+          "ticket_heure_debut": "14:58:20",
+          "ticket_heure_fin": "14:58:23",
+          "ticket_date2": "2024-05-26",
+          "ticket_number": 4,
+          "ticket_service_id": 837,
+          "ticket_guichet": 1,
+          "ticket_user_id": 27,
+          "ticket_status": 3,
+          "ticket_client_number": "",
+          "ticket_is_vip": 0,
+          "ticket_raison_id": 0,
+          "ticket_agence_id": 1321,
+          "ticket_agence_nom": "BUNIA",
+          "ticket_syncronized": 0,
+          "ticket_user_login": "esdras",
+          "ticket_service_name": "versement"
+        },
+        {
+          "ticket_date": "2024-05-26 14:57:34",
+          "ticket_heure_debut": "14:58:14",
+          "ticket_heure_fin": "14:58:18",
+          "ticket_date2": "2024-05-26",
+          "ticket_number": 5,
+          "ticket_service_id": 836,
+          "ticket_guichet": 1,
+          "ticket_user_id": 27,
+          "ticket_status": 3,
+          "ticket_client_number": "",
+          "ticket_is_vip": 0,
+          "ticket_raison_id": 0,
+          "ticket_agence_id": 1321,
+          "ticket_agence_nom": "BUNIA",
+          "ticket_syncronized": 0,
+          "ticket_user_login": "esdras",
+          "ticket_service_name": "retrait"
+        },
+        {
+          "ticket_date": "2024-05-26 15:03:41",
+          "ticket_heure_debut": "15:04:38",
+          "ticket_heure_fin": "15:04:41",
+          "ticket_date2": "2024-05-26",
+          "ticket_number": 6,
+          "ticket_service_id": 836,
+          "ticket_guichet": 2,
+          "ticket_user_id": 27,
+          "ticket_status": 0,
+          "ticket_client_number": "",
+          "ticket_is_vip": 0,
+          "ticket_raison_id": 0,
+          "ticket_agence_id": 1321,
+          "ticket_agence_nom": "BUNIA",
+          "ticket_syncronized": 0,
+          "ticket_user_login": "esdras",
+          "ticket_service_name": "retrait"
+        },
+        {
+          "ticket_date": "2024-05-26 15:03:49",
+          "ticket_heure_debut": "15:04:27",
+          "ticket_heure_fin": "15:04:31",
+          "ticket_date2": "2024-05-26",
+          "ticket_number": 7,
+          "ticket_service_id": 837,
+          "ticket_guichet": 2,
+          "ticket_user_id": 27,
+          "ticket_status": 3,
+          "ticket_client_number": "",
+          "ticket_is_vip": 0,
+          "ticket_raison_id": 0,
+          "ticket_agence_id": 1321,
+          "ticket_agence_nom": "BUNIA",
+          "ticket_syncronized": 0,
+          "ticket_user_login": "esdras",
+          "ticket_service_name": "versement"
+        },
+        {
+          "ticket_date": "2024-05-26 15:04:10",
+          "ticket_heure_debut": "15:04:33",
+          "ticket_heure_fin": "15:04:36",
+          "ticket_date2": "2024-05-26",
+          "ticket_number": 8,
+          "ticket_service_id": 837,
+          "ticket_guichet": 2,
+          "ticket_user_id": 27,
+          "ticket_status": 0,
+          "ticket_client_number": "",
+          "ticket_is_vip": 0,
+          "ticket_raison_id": 0,
+          "ticket_agence_id": 1321,
+          "ticket_agence_nom": "BUNIA",
+          "ticket_syncronized": 0,
+          "ticket_user_login": "esdras",
+          "ticket_service_name": "versement"
+        },
+        {
+          "ticket_date": "2024-05-26 18:07:21",
+          "ticket_heure_debut": "00:00:00",
+          "ticket_heure_fin": "00:00:00",
+          "ticket_date2": "2024-05-26",
+          "ticket_number": 9,
+          "ticket_service_id": 836,
+          "ticket_guichet": 0,
+          "ticket_user_id": 0,
+          "ticket_status": 1,
+          "ticket_client_number": "",
+          "ticket_is_vip": 0,
+          "ticket_raison_id": 0,
+          "ticket_agence_id": 1321,
+          "ticket_agence_nom": "BUNIA",
+          "ticket_syncronized": 0,
+          "ticket_user_login": null,
+          "ticket_service_name": "retrait"
+        }
+      ]
+    }
+  ]
+}
