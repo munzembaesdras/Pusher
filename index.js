@@ -44,7 +44,7 @@ const startServer = () => {
 };
 
 const startClient = () => {
-  require('./client');
+  require('./client');  
 };
 
 const init = async () => {
