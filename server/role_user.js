@@ -1,7 +1,7 @@
 module.exports = async function (records, connection) {
   try {
-    console.log(records);
-    for (const record of records) {
+/*     console.log(records);
+ */    for (const record of records) {
       const { user_login, role_nom } = record;
 
       // Récupérer l'ID de l'utilisateur
@@ -45,9 +45,9 @@ module.exports = async function (records, connection) {
       );
 
       if (existingRoleUserRows.length > 0) {
-        console.log(
+        /* console.log(
           `La relation entre l'utilisateur "${user_login}" et le rôle "${role_nom}" existe déjà.`
-        );
+        ); */
         await connection.execute(
           "UPDATE tb_role_user SET `role_id` = ? WHERE user_id = ?",
           [role_id, user_id]

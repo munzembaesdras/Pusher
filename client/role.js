@@ -1,4 +1,5 @@
 module.exports = async function (records, connection) {
+  console.log("nous somme belle est bien au role");
   for (const record of records) {
     const { role_nom, role_status, partenairenom } = record;
 
@@ -10,25 +11,25 @@ module.exports = async function (records, connection) {
 
     if (existingRoles.length > 0) {
       // Mise à jour des champs qui ont changé
+
       for (const existingRole of existingRoles) {
-        for (const key in existingRole) {
-          if (existingRole.role_status !== record.role_status) {
-            console.log(
-              `Le rôle "${role_nom}" existe déjà. Mise à jour des informations...`
-            );
+        if (existingRole.role_status !== record.role_status) {
+          for (const key in existingRole) {
+            console.log(`Le rôle "${role_nom}" existe déjà. Mise à jour des informations...`);
             const newValue = record.role_status;
             await connection.execute(
               `UPDATE tb_role SET role_status = ? WHERE role_nom = ?`,
               [newValue, role_nom]
             );
           }
+        } else{
+          console.log(`Le role ${existingRole.role_nom} existe deja`);
         }
       }
     } else {
       console.log(
         `Le rôle "${role_nom}" n'existe pas. Insertion d'un nouvel enregistrement...`
       );
-
       // Récupérer le partenaire_id correspondant au partenairenom
       const [partenaireRows] = await connection.execute(
         "SELECT partenaireid FROM tb_partenaire WHERE partenairenom = ?",
@@ -41,7 +42,6 @@ module.exports = async function (records, connection) {
         );
         continue;
       }
-
       const partenaire_id = partenaireRows[0].partenaireid;
 
       // Insérer un nouvel enregistrement dans tb_role
@@ -58,6 +58,5 @@ module.exports = async function (records, connection) {
       console.log(`Le rôle "${role_nom}" a été ajouté avec succès.`);
     }
   }
-
   await connection.end();
 };

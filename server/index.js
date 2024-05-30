@@ -8,6 +8,7 @@ const role_user = require("./role_user");
 const moment = require("moment");
 
 const ticket = require("./ticket");
+const role = require("../client/role");
 const app = express();
 const PORT = 3005;
 
@@ -46,7 +47,7 @@ app.post("/sync", async (req, res) => {
       role_user(records, connection);
     } else if (table === "tb_ticket") {
       ticket(records, connection);
-    }
+    } 
   }
 
   res.sendStatus(200);
@@ -58,7 +59,9 @@ const syncDataToClients = async () => {
 
     const [agencies] = await connection.query("SELECT * FROM tb_agence");
     const [services] = await connection.query("SELECT * FROM tb_service");
-    const [role] = await connection.query("SELECT * FROM tb_role");
+    const [role] = await connection.query(
+      "SELECT  r.role_nom, r.role_status, p.partenairenom FROM tb_role r join tb_partenaire p on r.partenaire_id = p.partenaireid ;"
+    );
     const [tickets] = await connection.query("SELECT * FROM tb_ticket");
     const [users] = await connection.query("SELECT * FROM tb_users");
     users.forEach((user) => {
@@ -71,12 +74,12 @@ const syncDataToClients = async () => {
     );
 
     const tables = [
-      { table: "tb_agence", data: agencies },
-      { table: "tb_service", data: services },
-      { table: "role", data: role },
-      { table: "users", data: users },
+      { table: "tb_agence", records: agencies },
+      { table: "tb_service", records: services },
+      { table: "tb_role", records: role },
+      { table: "tb_users", records: users },
       { table: "tb_role_user", records: role_user },
-      { table: "tickets", data: tickets },
+      { table: "tickets", records: tickets },
     ];
     const Data = {
       agence_nom: "",
@@ -89,8 +92,8 @@ const syncDataToClients = async () => {
         await axios.post(`http://${clientIp}:3005/sync`, Data);
       }
     }
-    console.log(JSON.stringify(Data));
-    await connection.end();
+/*     console.log(JSON.stringify(Data));
+ */    await connection.end();
     console.log("Data sent to clients successfully");
   } catch (error) {
     console.error("Error sending data to clients:", error);
