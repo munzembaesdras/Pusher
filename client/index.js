@@ -78,9 +78,7 @@ const syncDataToClients = async () => {
     const [users] = await connection.query("SELECT * FROM tb_users");
     // Format the date fields in users
     users.forEach((user) => {
-      user.creation_date = moment(user.creation_date).format(
-        "YYYY-MM-DD HH:mm:ss"
-      );
+      user.creation_date = moment(user.creation_date).format("YYYY-MM-DD HH:mm:ss");
       console.log(user.creation_date);
     });
 

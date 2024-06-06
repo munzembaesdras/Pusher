@@ -1,4 +1,6 @@
 module.exports = async function (records, connection) {
+  const moment = require("moment");
+
   try {
     for (const record of records) {
       const {
@@ -58,6 +60,7 @@ module.exports = async function (records, connection) {
           "SELECT agence_id FROM tb_agence WHERE agence_nom = ?",
           [ticket_agence_nom]
         );
+        console.log(agenceRows);
         if (agenceRows.length > 0) {
           ticket_agence_id = agenceRows[0].agence_id;
         } else {
@@ -74,71 +77,94 @@ module.exports = async function (records, connection) {
           error: `Erreur lors de la récupération des IDs nécessaires pour le ticket avec le numéro "${ticket_number}": ${err.message}`,
         };
       }
+// Insertion dans la table tb_ticket
+const checkDuplicateSql = `
+  SELECT ticket_number FROM tb_ticket WHERE ticket_number = ?
+`;
 
-      // Insertion dans la table tb_ticket
-      const sql = `
-        INSERT INTO tb_ticket (
-          ticket_date,
-          ticket_heure_debut,
-          ticket_heure_fin,
-          ticket_date2,
-          ticket_number,
-          ticket_service_id,
-          ticket_guichet,
-          ticket_user_id,
-          ticket_status,
-          ticket_client_number,
-          ticket_is_vip,
-          ticket_raison_id,
-          ticket_agence_id,
-          ticket_agence_nom,
-          ticket_syncronized,
-          ticket_user_login,
-          ticket_service_name
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `;
+try {
+  const [duplicateRows] = await connection.execute(checkDuplicateSql, [ticket_number]);
 
-      const params = [
-        ticket_date,
-        ticket_heure_debut,
-        ticket_heure_fin,
-        ticket_date2,
-        ticket_number,
-        ticket_service_id,
-        ticket_guichet,
-        ticket_user_id,
-        ticket_status,
-        ticket_client_number,
-        ticket_is_vip,
-        ticket_raison_id,
-        ticket_agence_id,
-        ticket_agence_nom,
-        ticket_syncronized,
-        ticket_user_login,
-        ticket_service_name,
-      ];
-      console.log(params);
+  if (duplicateRows.length > 0) {
+    console.log(`Le ticket avec le numéro "${ticket_number}" existe déjà dans la base de données.`);
+    // Vous pouvez choisir d'effectuer une mise à jour ici si nécessaire.
+    continue; // Passez au ticket suivant sans effectuer d'insertion.
+  }
+} catch (err) {
+  console.error(
+    `Erreur lors de la vérification de la duplication pour le ticket avec le numéro "${ticket_number}":`,
+    err.message
+  );
+  return {
+    error: `Erreur lors de la vérification de la duplication pour le ticket avec le numéro "${ticket_number}": ${err.message}`,
+  };
+}
 
-      try {
-        await connection.execute(sql, params);
-        console.log(
-          `Le ticket avec le numéro "${ticket_number}" a été enregistré avec succès.`
-        );
-      } catch (err) {
-        console.error(
-          `Erreur lors de l'insertion du ticket avec le numéro "${ticket_number}":`,
-          err.message
-        );
-        return {
-          error: `Erreur lors de l'insertion du ticket avec le numéro "${ticket_number}": ${err.message}`,
-        };
-      }
+// Si aucun ticket en double n'est trouvé, procédez à l'insertion normale.
+const sql = `
+  INSERT INTO tb_ticket (
+    ticket_date,
+    ticket_heure_debut,
+    ticket_heure_fin,
+    ticket_date2,
+    ticket_number,
+    ticket_service_id,
+    ticket_guichet,
+    ticket_user_id,
+    ticket_status,
+    ticket_client_number,
+    ticket_is_vip,
+    ticket_raison_id,
+    ticket_agence_id,
+    ticket_agence_nom,
+    ticket_syncronized,
+    ticket_user_login,
+    ticket_service_name
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`;
+
+const params = [
+  new Date(ticket_date).toISOString().slice(0, 19),
+  ticket_heure_debut,
+  ticket_heure_fin,
+  new Date(ticket_date2).toISOString().slice(0, 19),
+  ticket_number,
+  ticket_service_id,
+  ticket_guichet,
+  ticket_user_id,
+  ticket_status,
+  ticket_client_number,
+  ticket_is_vip,
+  ticket_raison_id,
+  ticket_agence_id,
+  ticket_agence_nom,
+  ticket_syncronized,
+  ticket_user_login,
+  ticket_service_name,
+];
+
+try {
+  await connection.execute(sql, params);
+  console.log(
+    `Le ticket avec le numéro "${ticket_number}" a été enregistré avec succès.`
+  );
+} catch (err) {
+  console.error(
+    `Erreur lors de l'insertion du ticket avec le numéro "${ticket_number}":`,
+    err.message
+  );
+  return {
+    error: `Erreur lors de l'insertion du ticket avec le numéro "${ticket_number}": ${err.message}`,
+  };
+}
+
     }
   } catch (err) {
     console.error(
       "Erreur lors du traitement des enregistrements:",
       err.message
     );
+
     return {
       error: `Erreur lors du traitement des enregistrements: ${err.message}`,
     };

@@ -1,7 +1,7 @@
 module.exports = dbConfig = {
   host: "localhost",
   user: "root",
-  port: 3306,
-  password: "",
+  port: 3307,
+  password: "admin3307",
   database: "extratime",
 };
