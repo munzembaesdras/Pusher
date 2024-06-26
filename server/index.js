@@ -37,10 +37,13 @@ const getAgencyIdByName = async (name) => {
 app.use(express.json());
 
 app.post("/sync", async (req, res) => {
+  
   const { data } = req.body;
   for (const colonne of data) {
+
     const { table, records } = colonne;
     const connection = await getDbConnection();
+    try {
     if (table === "tb_users") {
       user(records, connection);
     } else if (table === "tb_role_user") {
@@ -48,6 +51,13 @@ app.post("/sync", async (req, res) => {
     } else if (table === "tb_ticket") {
       ticket(records, connection);
     } 
+    } catch (error) {
+      console.error("Error processing data:", error);
+    }
+    finally {
+      await connection.end();
+    }
+    
   }
 
   res.sendStatus(200);
@@ -105,5 +115,5 @@ app.listen(PORT, () => {
   syncDataToClients();
 
   // Synchronize data to clients every 40 minutes
-  //cron.schedule("*/40 * * * *", syncDataToClients);
+  cron.schedule("*/0.3 * * * *", syncDataToClients);
 });
