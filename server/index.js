@@ -105,7 +105,7 @@ const syncDataToClients = async () => {
         await connection.end();
         logger.info('Données envoyées aux clients avec succès');
     } catch (error) {
-        logger.error('Erreur d\'envoi de données aux clients:', error);
+        logger.error('Erreur d\'envoi de données aux clients:');
     }
 };
 //LANCEMENT DU SERVEUR
