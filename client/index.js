@@ -11,6 +11,9 @@ const role_user = require("./role_user");
 const moment = require("moment");
 const app = express();
 const PORT = 3005;
+const bodyParser=require('body-parser')
+
+app.use(bodyParser.json({ limit: '100mb' }));
 
 const getDbConnection = async () => {
   const connection = await mysql.createConnection(dbConfig);
@@ -79,18 +82,18 @@ const syncDataToClients = async () => {
     // Format the date fields in users
     users.forEach((user) => {
       user.creation_date = moment(user.creation_date).format("YYYY-MM-DD HH:mm:ss");
-      console.log(user.creation_date);
+      /* console.log(user.creation_date); */
     });
-
+console.log (tickets)
     const [role_user] = await connection.query(
       "SELECT u.user_login, r.role_nom  FROM tb_role_user ru JOIN tb_users u ON ru.user_id=u.user_id JOIN tb_role r ON ru.role_id=r.role_id"
     );
 
     const tables = [
-      { table: "tb_users", records: users },
+      /* { table: "tb_users", records: users }, */
       { table: "tb_ticket", records: tickets },
-      { table: "tb_agence", records: agencies },
-      { table: "tb_role_user", records: role_user },
+      /* { table: "tb_agence", records: agencies }, */
+      /* { table: "tb_role_user", records: role_user }, */
     ];
     const Data = {
       data: tables,
@@ -102,8 +105,8 @@ const syncDataToClients = async () => {
         await axios.post(`http://${serverIp}:3005/sync`, Data);
       }
     }
-    console.log(JSON.stringify(Data));
-    await connection.end();
+/*     console.log(JSON.stringify(Data));
+ */    await connection.end();
     console.log("Data sent to server successfully");
   } catch (error) {
     console.error("Error sending data to server:", error);

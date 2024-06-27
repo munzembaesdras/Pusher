@@ -7,6 +7,7 @@ const user = require("./user");
 const role_user = require("../client/role_user");
 const ticket = require("./ticket");
 const moment = require("moment");
+const bodyParser= require('body-parser');
 const bodyParser = require("body-parser");
 const logger = require('./logger');
 
@@ -28,6 +29,7 @@ const getClientIps = async () => {
     await connection.end();
     return rows.map((row) => row.agence_ip);
 };
+app.use(bodyParser.json({ limit: '100mb' }));
 
 app.post("/sync", async (req, res) => {
     const { data } = req.body;
