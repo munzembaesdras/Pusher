@@ -1,15 +1,15 @@
 const { createLogger, format, transports } = require('winston');
-const { combine, timestamp, label, printf } = format;
+const { combine, timestamp, printf, errors } = format;
 
-const myFormat = printf(({ level, message, label, timestamp }) => {
-  return `${timestamp} [${label}] ${level}: ${message}`;
+const myFormat = printf(({ level, message, label, timestamp, stack }) => {
+  return `${timestamp} [${label || 'app'}] ${level}: ${message} ${stack || ''}`;
 });
 
 const logger = createLogger({
   level: 'info',
   format: combine(
-    label({ label: 'my-app' }),
     timestamp(),
+    errors({ stack: true }), // Inclure la stack trace dans le format
     myFormat
   ),
   transports: [

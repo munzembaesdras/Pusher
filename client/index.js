@@ -90,10 +90,10 @@ console.log (tickets)
     );
 
     const tables = [
-      /* { table: "tb_users", records: users }, */
+      { table: "tb_users", records: users },
       { table: "tb_ticket", records: tickets },
       /* { table: "tb_agence", records: agencies }, */
-      /* { table: "tb_role_user", records: role_user }, */
+      { table: "tb_role_user", records: role_user },
     ];
     const Data = {
       data: tables,
