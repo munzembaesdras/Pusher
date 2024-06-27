@@ -12,6 +12,7 @@ module.exports = async function (records, connection) {
       if (rows.length > 0) {
         for (const row of rows) {
           for (const key in row) {
+            
             if (row.hasOwnProperty(key)) {
               if (key !== "user_is_connect" && key !== "user_id" && row[key] !== record[key]) {
                 let newValue = record[key];

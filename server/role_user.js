@@ -1,7 +1,6 @@
 module.exports = async function (records, connection) {
   try {
-/*     console.log(records);
- */    for (const record of records) {
+    for (const record of records) {
       const { user_login, role_nom } = record;
 
       // Récupérer l'ID de l'utilisateur
@@ -45,21 +44,18 @@ module.exports = async function (records, connection) {
       );
 
       if (existingRoleUserRows.length > 0) {
-        /* console.log(
-          `La relation entre l'utilisateur "${user_login}" et le rôle "${role_nom}" existe déjà.`
-        ); */
+        // Mettre à jour la relation entre l'utilisateur et le rôle
         await connection.execute(
           "UPDATE tb_role_user SET `role_id` = ? WHERE user_id = ?",
           [role_id, user_id]
         );
-        continue;
+      } else {
+        // Insérer la relation entre l'utilisateur et le rôle
+        await connection.execute(
+          "INSERT INTO tb_role_user (user_id, role_id) VALUES (?, ?)",
+          [user_id, role_id]
+        );
       }
-
-      // Insérer la relation entre l'utilisateur et le rôle
-      await connection.execute(
-        "INSERT INTO tb_role_user (user_id, role_id) VALUES (?, ?)",
-        [user_id, role_id]
-      );
 
       console.log(
         `Le rôle "${role_nom}" a été attribué à l'utilisateur "${user_login}" avec succès.`
@@ -71,5 +67,4 @@ module.exports = async function (records, connection) {
       error
     );
   }
-  await connection.end();
 };
