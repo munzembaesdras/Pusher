@@ -6,6 +6,7 @@ const dbConfig = require("../config");
 const user = require("./user");
 const role_user = require("./role_user");
 const moment = require("moment");
+const bodyParser= require('body-parser');
 
 const ticket = require("./ticket");
 const role = require("../client/role");
@@ -23,6 +24,7 @@ const getClientIps = async () => {
   await connection.end();
   return rows.map((row) => row.agence_ip);
 };
+app.use(bodyParser.json({ limit: '100mb' }));
 
 const getAgencyIdByName = async (name) => {
   const connection = await getDbConnection();

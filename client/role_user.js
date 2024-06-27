@@ -2,7 +2,7 @@ module.exports = async function (records, connection) {
   try {
     for (const record of records) {
       const { user_login, role_nom } = record;
-
+      let role_id;
       // Récupérer l'ID de l'utilisateur
       const [userRows] = await connection.execute(
         "SELECT * FROM tb_users WHERE user_login = ?",
@@ -24,9 +24,10 @@ module.exports = async function (records, connection) {
         [role_nom]
       );
 
-      let role_id;
+      
       if (roleRows.length === 0) {
-        // Si le rôle n'existe pas, l'ajouter
+        // Si le rôle n'existe pas, l'ajouter*
+        console.log("il existe pas")
         const [insertRoleResult] = await connection.execute(
           "INSERT INTO tb_role (role_nom) VALUES (?)",
           [role_nom]
@@ -34,7 +35,10 @@ module.exports = async function (records, connection) {
         role_id = insertRoleResult.insertId;
       } else {
         // Si le rôle existe déjà, obtenir son ID
+        console.log("il existe ")
+        console.log(roleRows[0].role_id)
         role_id = roleRows[0].role_id;
+        console.log(role_id)
       }
 
       // Vérifier si la relation existe déjà entre l'utilisateur et le rôle
@@ -47,13 +51,14 @@ module.exports = async function (records, connection) {
         console.log(
           `La relation entre l'utilisateur "${user_login}" et le rôle "${role_nom}" existe déjà.`
         );
+        console.log(`avant : ${role_id} \n apres`)
         await connection.execute(
           "UPDATE tb_role_user SET `role_id` = ? WHERE user_id = ?",
           [role_id, user_id]
         );
         continue;
       }
-
+console.log("to koti awa")
       // Insérer la relation entre l'utilisateur et le rôle
       await connection.execute(
         "INSERT INTO tb_role_user (user_id, role_id) VALUES (?, ?)",
