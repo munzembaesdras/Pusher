@@ -21,8 +21,8 @@ const getDbConnection = async () => {
      */
     return connection;
 };
-//RECUPERATION DES ADRESSES IP DES CLIENTS
 
+//RECUPERATION DES ADRESSES IP DES CLIENTS
 app.use(bodyParser.json({ limit: '100mb' }));
 
 //RECUPERATION ET TRAITEMENT DES DONNÉES RECU PAR LE CLIENT
@@ -57,7 +57,6 @@ const syncDataToClients = async () => {
         const connection = await getDbConnection();
 
         //RECUPERATION DES DONNÉES DES TABLES
-
         const [agences] = await connection.query("SELECT * FROM tb_agence");
         const [services] = await connection.query("SELECT * FROM tb_service");
         const [role] = await connection.query(
@@ -86,6 +85,7 @@ const syncDataToClients = async () => {
             agence_nom: "",
             data: tables,
         };
+
         //RECUPERATION DES ADRESSES IP DES CLIENTS
         const getClientIps = async () => {
             const connection = await getDbConnection();
@@ -97,17 +97,18 @@ const syncDataToClients = async () => {
 
         //ENVOI DES DONNÉES AUX CLIENTS
         for (const clientIp of clientIps) {
-            /* for (const table of tables) { */
             await axios.post(`http://${clientIp}:3005/sync`, Data);
-            /* } */
         }
 
         await connection.end();
-        logger.info('Données envoyées aux clients avec succès');
+
+        // Enregistrer les données envoyées dans un fichier JSON
+        logger.info(`Données envoyées aux clients avec succès:`, Data);
     } catch (error) {
         logger.error('Erreur d\'envoi de données aux clients:', error);
     }
 };
+
 //LANCEMENT DU SERVEUR
 app.listen(PORT, () => {
     console.log(`Le serveur s'exécute sur le port ${PORT}`);
@@ -115,5 +116,5 @@ app.listen(PORT, () => {
     syncDataToClients();
 
     // Synchronize data to clients every 40 minutes
-    cron.schedule("*/0.1 * * * *", syncDataToClients);
+    cron.schedule("*/40 * * * *", syncDataToClients);
 });
