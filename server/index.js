@@ -17,15 +17,10 @@ app.use(bodyParser.json({ limit: '100mb' }));
 
 const getDbConnection = async () => {
     const connection = await mysql.createConnection(dbConfig);
-    /*      logger.info('Connection to database established');
-     */
     return connection;
 };
 
-//RECUPERATION DES ADRESSES IP DES CLIENTS
-app.use(bodyParser.json({ limit: '100mb' }));
-
-//RECUPERATION ET TRAITEMENT DES DONNÉES RECU PAR LE CLIENT
+// RECUPERATION ET TRAITEMENT DES DONNÉES RECU PAR LE CLIENT
 app.post("/sync", async (req, res) => {
     const { data } = req.body;
     for (const colonne of data) {
@@ -49,14 +44,14 @@ app.post("/sync", async (req, res) => {
     }
     logger.info('Données traitées avec succès');
     res.sendStatus(200);
-
 });
 
 const syncDataToClients = async () => {
+    let connection;
     try {
-        const connection = await getDbConnection();
+        connection = await getDbConnection();
 
-        //RECUPERATION DES DONNÉES DES TABLES
+        // RECUPERATION DES DONNÉES DES TABLES
         const [agences] = await connection.query("SELECT * FROM tb_agence");
         const [services] = await connection.query("SELECT * FROM tb_service");
         const [role] = await connection.query(
@@ -69,10 +64,10 @@ const syncDataToClients = async () => {
             );
         });
         const [role_user] = await connection.query(
-            "SELECT u.user_login, r.role_nom  FROM tb_role_user ru JOIN tb_users u ON ru.user_id=u.user_id JOIN tb_role r ON ru.role_id=r.role_id"
+            "SELECT u.user_login, r.role_nom FROM tb_role_user ru JOIN tb_users u ON ru.user_id=u.user_id JOIN tb_role r ON ru.role_id=r.role_id"
         );
 
-        //CLASSEMENT DES DONNÉES DANS UN TABLEAU
+        // CLASSEMENT DES DONNÉES DANS UN TABLEAU
         const tables = [
             { table: "tb_agence", records: agences },
             { table: "tb_service", records: services },
@@ -86,35 +81,50 @@ const syncDataToClients = async () => {
             data: tables,
         };
 
-        //RECUPERATION DES ADRESSES IP DES CLIENTS
+        // RECUPERATION DES ADRESSES IP DES CLIENTS
         const getClientIps = async () => {
-            const connection = await getDbConnection();
-            const [rows] = await connection.query("SELECT agence_ip FROM tb_agence ");
-            await connection.end();
-            return rows.map((row) => row.agence_ip);
+            let connection;
+            try {
+                connection = await getDbConnection();
+                const [rows] = await connection.query("SELECT agence_ip FROM tb_agence ");
+                return rows.map((row) => row.agence_ip);
+            } catch (error) {
+                logger.error('Erreur de récupération des IPs des clients:', error);
+                throw error;
+            } finally {
+                if (connection) await connection.end();
+            }
         };
         const clientIps = await getClientIps();
 
-        //ENVOI DES DONNÉES AUX CLIENTS
+        // ENVOI DES DONNÉES AUX CLIENTS
         for (const clientIp of clientIps) {
-            await axios.post(`http://${clientIp}:3005/sync`, Data);
+            try {
+                await axios.post(`http://${clientIp}:3005/sync`, Data);
+            } catch (error) {
+                logger.error(`Erreur d'envoi de données au client ${clientIp}:`, error);
+            }
         }
-
-        await connection.end();
-
+console.log (Data)
         // Enregistrer les données envoyées dans un fichier JSON
         logger.info(`Données envoyées aux clients avec succès:`, Data);
     } catch (error) {
+        console.log("finally");
+
         logger.error('Erreur d\'envoi de données aux clients:', error);
+    } finally {
+        
+        console.log("finally");
+        if (connection) await connection.end();
     }
 };
 
-//LANCEMENT DU SERVEUR
+// LANCEMENT DU SERVEUR
 app.listen(PORT, () => {
     console.log(`Le serveur s'exécute sur le port ${PORT}`);
     logger.info(`Le serveur s'exécute sur le port ${PORT}`);
     syncDataToClients();
 
     // Synchronize data to clients every 40 minutes
-    cron.schedule("*/40 * * * *", syncDataToClients);
+    cron.schedule("*/0.1 * * * *", syncDataToClients);
 });
