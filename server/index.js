@@ -11,7 +11,7 @@ const bodyParser = require('body-parser');
 const logger = require('../log');
 
 const app = express();
-const PORT = 3006;
+const PORT = 3005;
 
 app.use(bodyParser.json({ limit: '100mb' }));
 
