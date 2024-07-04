@@ -1,3 +1,5 @@
+const { log } = require("winston");
+const logger = require("../log");
 module.exports = async function (records, connection) {
   const moment = require("moment");
 
@@ -25,6 +27,7 @@ module.exports = async function (records, connection) {
         console.log(
           `Le ticket avec le numéro "${ticket_number}" ne sera pas enregistré car le ticket_status est 1 ou ticket_user_login est null.`
         );
+        logger.info(` Le ticket avec le numéro "${ticket_number}" ne sera pas enregistré car le ticket_status est 1 ou ticket_user_login est null.`)
         continue;
       }
 
@@ -39,6 +42,7 @@ module.exports = async function (records, connection) {
         if (serviceRows.length > 0) {
           ticket_service_id = serviceRows[0].service_id;
         } else {
+          logger.error(`Service avec le nom "${ticket_service_name}" non trouvé.`);
           throw new Error(
             `Service avec le nom "${ticket_service_name}" non trouvé.`
           );
@@ -51,6 +55,7 @@ module.exports = async function (records, connection) {
         if (userRows.length > 0) {
           ticket_user_id = userRows[0].user_id;
         } else {
+          logger.error(`Utilisateur avec le login "${ticket_user_login}" non trouvé.`);
           throw new Error(
             `Utilisateur avec le login "${ticket_user_login}" non trouvé.`
           );
@@ -64,11 +69,13 @@ module.exports = async function (records, connection) {
         if (agenceRows.length > 0) {
           ticket_agence_id = agenceRows[0].agence_id;
         } else {
+          logger.error(`Agence avec le nom "${ticket_agence_nom}" non trouvée.`);
           throw new Error(
             `Agence avec le nom "${ticket_agence_nom}" non trouvée.`
           );
         }
       } catch (err) {
+        logger.error(` Erreur lors de la récupération des IDs nécessaires pour le ticket avec le numéro "${ticket_number}": ${err.message}`)
         console.error(
           `Erreur lors de la récupération des IDs nécessaires pour le ticket avec le numéro "${ticket_number}":`,
           err.message
@@ -78,24 +85,25 @@ module.exports = async function (records, connection) {
         };
       }
       // Insertion dans la table tb_ticket
-      const checkDuplicateSql = `
-  SELECT ticket_number FROM tb_ticket WHERE ticket_number = ?
-`;
+      const checkDuplicateSql = `SELECT ticket_number FROM tb_ticket WHERE ticket_number = ? and ticket_agence_nom = ?`;
 
       try {
-        const [duplicateRows] = await connection.execute(checkDuplicateSql, [ticket_number]);
+        const [duplicateRows] = await connection.execute(checkDuplicateSql, [ticket_number, ticket_agence_nom]);
 
         if (duplicateRows.length > 0) {
+          logger.info(`Le ticket avec le numéro "${ticket_number}" existe déjà dans la base de données.`);
           console.log(`Le ticket avec le numéro "${ticket_number}" existe déjà dans la base de données.`);
           // Vous pouvez choisir d'effectuer une mise à jour ici si nécessaire.
           continue; // Passez au ticket suivant sans effectuer d'insertion.
         }
       } catch (err) {
+        logger.error(`Erreur lors de la vérification de la duplication pour le ticket avec le numéro "${ticket_number}": ${err.message}`);
         console.error(
           `Erreur lors de la vérification de la duplication pour le ticket avec le numéro "${ticket_number}":`,
           err.message
         );
         return {
+
           error: `Erreur lors de la vérification de la duplication pour le ticket avec le numéro "${ticket_number}": ${err.message}`,
         };
       }
@@ -126,7 +134,7 @@ module.exports = async function (records, connection) {
         new Date(ticket_date).toISOString().slice(0, 19),
         ticket_heure_debut,
         ticket_heure_fin,
-        new Date(ticket_date2).toISOString().slice(0, 19),
+        new Date(ticket_date).toISOString().slice(0, 19),
         ticket_number,
         ticket_service_id,
         ticket_guichet,
@@ -144,10 +152,12 @@ module.exports = async function (records, connection) {
 
       try {
         await connection.execute(sql, params);
+        logger.info(`Le ticket avec le numéro "${ticket_number}" a été enregistré avec succès.`);
         console.log(
           `Le ticket avec le numéro "${ticket_number}" a été enregistré avec succès.`
         );
       } catch (err) {
+        logger.error(`Erreur lors de l'insertion du ticket avec le numéro "${ticket_number}": ${err.message}`);
         console.error(
           `Erreur lors de l'insertion du ticket avec le numéro "${ticket_number}":`,
           err

@@ -11,7 +11,7 @@ const bodyParser = require('body-parser');
 const logger = require('../log');
 
 const app = express();
-const PORT = 3005;
+const PORT = 3006;
 
 app.use(bodyParser.json({ limit: '100mb' }));
 
@@ -33,6 +33,8 @@ app.post("/sync", async (req, res) => {
                 await role_user(records, connection);
             } else if (table === "tb_ticket") {
                 console.log("ticket");
+                console.log(records);
+                logger.info('Données de traitement des tickets:', records); // Enregistrement des données de traitement des tickets
                 await ticket(records, connection);
             }
         } catch (error) {
@@ -53,7 +55,8 @@ const syncDataToClients = async () => {
 
         // RECUPERATION DES DONNÉES DES TABLES
         const [agences] = await connection.query("SELECT * FROM tb_agence");
-        const [services] = await connection.query("SELECT * FROM tb_service");
+
+
         const [role] = await connection.query(
             "SELECT r.role_nom, r.role_status, p.partenairenom FROM tb_role r JOIN tb_partenaire p ON r.partenaire_id = p.partenaireid;"
         );
@@ -66,27 +69,25 @@ const syncDataToClients = async () => {
         const [role_user] = await connection.query(
             "SELECT u.user_login, r.role_nom FROM tb_role_user ru JOIN tb_users u ON ru.user_id=u.user_id JOIN tb_role r ON ru.role_id=r.role_id"
         );
-
-        // CLASSEMENT DES DONNÉES DANS UN TABLEAU
-        const tables = [
-            { table: "tb_agence", records: agences },
-            { table: "tb_service", records: services },
-            { table: "tb_role", records: role },
-            { table: "tb_users", records: users },
-            { table: "tb_role_user", records: role_user },
-        ];
-
-        const Data = {
-            agence_nom: "",
-            data: tables,
-        };
+        const [services_agence] = await connection.query(`
+            SELECT sa.agence_id, a.agence_ip, s.* 
+            FROM tb_service_agence sa 
+            JOIN tb_agence a ON a.agence_id = sa.agence_id 
+            JOIN tb_service s ON s.service_id = sa.service_id
+        `);
+        services_agence.forEach((service) => {
+            service.service_create_date = moment(service.service_create_date).format(
+                "YYYY-MM-DD HH:mm:ss"
+            );
+            
+        });
 
         // RECUPERATION DES ADRESSES IP DES CLIENTS
         const getClientIps = async () => {
             let connection;
             try {
                 connection = await getDbConnection();
-                const [rows] = await connection.query("SELECT agence_ip FROM tb_agence ");
+                const [rows] = await connection.query("SELECT agence_ip FROM tb_agence");
                 return rows.map((row) => row.agence_ip);
             } catch (error) {
                 logger.error('Erreur de récupération des IPs des clients:', error);
@@ -100,20 +101,37 @@ const syncDataToClients = async () => {
         // ENVOI DES DONNÉES AUX CLIENTS
         for (const clientIp of clientIps) {
             try {
+                const filteredServices = services_agence.filter(sa => sa.agence_ip === clientIp);
+                console.log(filteredServices)
+                const tables = [
+                    { table: "tb_agence", records: agences },
+                    { table: "tb_service", records: filteredServices },
+                    { table: "tb_role", records: role },
+                    { table: "tb_users", records: users },
+                    { table: "tb_role_user", records: role_user },
+                ];
+
+                const Data = {
+                    agence_nom: "",  // Remplissez cette valeur selon vos besoins
+                    data: tables,
+                };
+                console.log(filteredServices)
+
                 await axios.post(`http://${clientIp}:3005/sync`, Data);
             } catch (error) {
                 logger.error(`Erreur d'envoi de données au client ${clientIp}:`, error);
             }
         }
-console.log (Data)
+
+
         // Enregistrer les données envoyées dans un fichier JSON
-        logger.info(`Données envoyées aux clients avec succès:`, Data);
+        logger.info(`Données envoyées aux clients avec succès:`);
     } catch (error) {
         console.log("finally");
 
         logger.error('Erreur d\'envoi de données aux clients:', error);
     } finally {
-        
+
         console.log("finally");
         if (connection) await connection.end();
     }
