@@ -19,61 +19,49 @@ module.exports = async function (records, connection) {
       const user_id = userRows[0].user_id;
 
       // Vérifier si le rôle existe déjà
-      const [roleRows] = await connection.execute(
-        "SELECT role_id FROM tb_role WHERE role_nom = ?",
-        [role_nom]
-      );
+      const [roleRows] = await connection.execute("SELECT role_id FROM tb_role WHERE role_nom = ?", [role_nom]);
 
-      
       if (roleRows.length === 0) {
         // Si le rôle n'existe pas, l'ajouter*
-        console.log("il existe pas")
-        const [insertRoleResult] = await connection.execute(
-          "INSERT INTO tb_role (role_nom) VALUES (?)",
-          [role_nom]
-        );
+        const [insertRoleResult] = await connection.execute("INSERT INTO tb_role (role_nom) VALUES (?)", [role_nom]);
         role_id = insertRoleResult.insertId;
+
       } else {
-        // Si le rôle existe déjà, obtenir son ID
-        console.log("il existe ")
-        console.log(roleRows[0].role_id)
+        // Si le rôle existe déjà, obtenir son ID        
         role_id = roleRows[0].role_id;
         console.log(role_id)
       }
 
       // Vérifier si la relation existe déjà entre l'utilisateur et le rôle
-      const [existingRoleUserRows] = await connection.execute(
-        "SELECT * FROM tb_role_user WHERE user_id = ? ",
-        [user_id]
+      const [existingRoleUserRows] = await connection.execute("SELECT * FROM tb_role_user WHERE user_id = ? ", [user_id]
+
       );
 
       if (existingRoleUserRows.length > 0) {
-        console.log(
-          `La relation entre l'utilisateur "${user_login}" et le rôle "${role_nom}" existe déjà.`
-        );
-        console.log(`avant : ${role_id} \n apres`)
-        await connection.execute(
-          "UPDATE tb_role_user SET `role_id` = ? WHERE user_id = ?",
-          [role_id, user_id]
-        );
+        if (existingRoleUserRows.length > 1) {
+          console.log(`Plusieurs rôles attribués à l'utilisateur "${user_login}".`);
+
+          existingRoleUserRows.forEach(async (row) => {
+            const supression = await connection.execute("DELETE FROM tb_role_user WHERE role_user_id = ?", [row.role_user_id]);
+            await connection.execute("INSERT INTO tb_role_user (user_id, role_id) VALUES (?, ?)", [user_id, role_id]);
+            console.log(row.role_user_id);
+            
+          });
+          continue;
+        }
+        console.log(`La relation entre l'utilisateur "${user_login}" et le rôle "${role_nom}" existe déjà.`);
+        // Mettre à jour la relation entre l'utilisateur et le rôle
+        await connection.execute("UPDATE tb_role_user SET `role_id` = ? WHERE user_id = ?", [role_id, user_id]);
         continue;
       }
-console.log("to koti awa")
-      // Insérer la relation entre l'utilisateur et le rôle
-      await connection.execute(
-        "INSERT INTO tb_role_user (user_id, role_id) VALUES (?, ?)",
-        [user_id, role_id]
-      );
 
-      console.log(
-        `Le rôle "${role_nom}" a été attribué à l'utilisateur "${user_login}" avec succès.`
-      );
+      // Insérer la relation entre l'utilisateur et le rôle
+      await connection.execute("INSERT INTO tb_role_user (user_id, role_id) VALUES (?, ?)", [user_id, role_id]);
+
+      console.log(`Le rôle "${role_nom}" a été attribué à l'utilisateur "${user_login}" avec succès.`);
     }
   } catch (error) {
-    console.log(
-      "Une erreur s'est produite lors de l'attribution des rôles:",
-      error
-    );
+    console.log("Une erreur s'est produite lors de l'attribution des rôles:", error);
   }
   await connection.end();
 };

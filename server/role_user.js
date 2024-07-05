@@ -44,6 +44,12 @@ module.exports = async function (records, connection) {
       );
 
       if (existingRoleUserRows.length > 0) {
+        if (existingRoleUserRows.length > 1) {
+          
+          console.log(
+            `Plusieurs rôles attribués à l'utilisateur "${user_login}".`
+          );
+        }
         // Mettre à jour la relation entre l'utilisateur et le rôle
         await connection.execute(
           "UPDATE tb_role_user SET `role_id` = ? WHERE user_id = ?",
