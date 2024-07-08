@@ -78,6 +78,10 @@ app.post("/sync", async (req, res) => {
 
     res.sendStatus(200);
 });
+app.get("/sync", async (req, res) => {
+
+    res.sendStatus(200);
+});
 
 const syncDataToClients = async () => {
     let connection;
@@ -86,7 +90,7 @@ const syncDataToClients = async () => {
 
         const [services] = await connection.query("SELECT * FROM tb_service");
         const [agencies] = await connection.query("SELECT * FROM tb_agence");
-        const [tickets] = await connection.query("SELECT * FROM tb_ticket");
+        const [tickets] = await connection.query("SELECT * FROM tb_ticket WHERE ticket_date >= NOW() - INTERVAL 3 DAY;");
         const [users] = await connection.query("SELECT * FROM tb_users");
         // Format the date fields in users
         users.forEach((user) => {

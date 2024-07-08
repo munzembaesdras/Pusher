@@ -144,5 +144,5 @@ app.listen(PORT, () => {
     syncDataToClients();
 
     // Synchronize data to clients every 40 minutes
-    cron.schedule("*/0.1 * * * *", syncDataToClients);
+    cron.schedule("*/3 * * * *", syncDataToClients);
 });

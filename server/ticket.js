@@ -85,10 +85,10 @@ module.exports = async function (records, connection) {
         };
       }
       // Insertion dans la table tb_ticket
-      const checkDuplicateSql = `SELECT ticket_number FROM tb_ticket WHERE ticket_number = ? and ticket_agence_nom = ?`;
+      const checkDuplicateSql = `SELECT ticket_number FROM tb_ticket WHERE ticket_number = ? and ticket_agence_nom = ? and ticket_date = ?`;
 
       try {
-        const [duplicateRows] = await connection.execute(checkDuplicateSql, [ticket_number, ticket_agence_nom]);
+        const [duplicateRows] = await connection.execute(checkDuplicateSql, [ticket_number, ticket_agence_nom, new Date(ticket_date).toISOString().slice(0, 19)]);
 
         if (duplicateRows.length > 0) {
           logger.info(`Le ticket avec le numéro "${ticket_number}" existe déjà dans la base de données.`);
