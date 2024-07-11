@@ -7,7 +7,20 @@ module.exports = async function (records, connection) {
       "SELECT * FROM tb_service WHERE service_key = ?",
       [service_key]
     );
-
+    const [services] = await connection.execute(
+      "SELECT * FROM tb_service"
+    );
+    
+    services.forEach(async (service) => {
+      const [seuilAlerte]=await connection.execute("SELECT * FROM tb_seuils_alert WHERE seuils_alert_service= ?",[service.service_id])
+      console.log("service yeyo ", seuilAlerte.length)
+      console.log(seuilAlerte.length)
+      if (seuilAlerte.length === 0){
+        const sqlSeuil=`INSERT INTO tb_seuils_alert SET seuils_alert_service = ?`;
+        const paramSeuil= [service.service_id];
+        await connection.execute(sqlSeuil,paramSeuil);
+      }
+    });
     if (rows.length > 0) {
       for (const row of rows) {
         for (const key in row) {
@@ -39,7 +52,7 @@ module.exports = async function (records, connection) {
       service_priority,
       service_mono_file,
     } = record;
-console.log(record);
+    console.log(record);
     const sql = `
         INSERT INTO tb_service (
           service_name,
@@ -69,9 +82,7 @@ console.log(record);
       service_mono_file,
       service_key,
     ];
-    const [result] = await connection.execute(sql, params);
- 
-    await connection.execute("INSERT INTO tb_seuils_alert SET seuils_alert_service = ?", [result.insertId]);
+    const [result] = await connection.execute(sql, params)
   }
   await connection.end();
 };

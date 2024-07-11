@@ -132,5 +132,5 @@ app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
     syncDataToClients();
     // Synchronize data to clients every 40 minutes
-    cron.schedule("*/0.3 * * * *", syncDataToClients);
+    cron.schedule("*/3 * * * *", syncDataToClients);
 });
