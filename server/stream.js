@@ -108,7 +108,7 @@ const getServerIps = async () => {
                 try{
                   const serverIps = await getServerIps();
                   for (serverIp of serverIps) {
-                    await axios.post(`http://${serverIp}:3005/sync`, {tables});
+                    await axios.post(`http://${serverIp}:3005/sync`, {data:tables});
                   }
                 }catch(error){
                   console.log(`Error d'envoie des données ${serverIp}`, error);
