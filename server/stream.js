@@ -5,7 +5,8 @@ const MySQLEvents = require("@rodrigogs/mysql-events");
 const dbConfig = require("../config");
 const checkRole = require('../index');
 const logger=require('../log')
-//const getServerIps = require('../client/index');
+const moment = require("moment");
+
 const axios = require("axios");
 const config = require("../config");
 
@@ -62,7 +63,7 @@ const getServerIps = async () => {
       database: dbConfig.database,
       charset: 'utf8mb4',  // Use utf8mb4 instead of UTF8
       authPlugins: {
-        mysql_clear_password: () => () => Buffer.from('admin') // Example for clear password auth
+        mysql_clear_password: () => () => Buffer.from(dbConfig.password) // Example for clear password auth
       }
     });
 
@@ -78,10 +79,13 @@ const getServerIps = async () => {
       statement: MySQLEvents.STATEMENTS.ALL,
       onEvent: async (event) => {
         const { type, schema, table, affectedRows } = event;
-console.log("salut biso yzyo");
+        console.log("salut biso yzyo");
         if (type === 'UPDATE' && schema === 'extratime' && table === 'tb_users') {
           affectedRows.forEach(async (row) => {
             const { after, before } = row;
+            after.creation_date = moment(after.creation_date).format(
+              "YYYY-MM-DD HH:mm:ss"
+          );
             const tables = [
               {table: "tb_users", records: [after]}
             ];
