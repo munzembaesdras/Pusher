@@ -14,7 +14,7 @@ const logger = require('../log');
 
 const app = express();
 const PORT = 3005;
-
+const wehereTciket = "WHERE ticket_date2 >= NOW() - INTERVAL 3 DAY";
 app.use(bodyParser.json({ limit: '100mb' }));
 
 const getDbConnection = async () => {
@@ -36,21 +36,9 @@ const getServerIps = async () => {
     }
 };
 
-const getAgencyIdByName = async (name) => {
-    let connection;
-    try {
-        connection = await getDbConnection();
-        const [rows] = await connection.query("SELECT agence_key FROM tb_agence WHERE agence_nom = ?", [name]);
-        return rows.map((row) => row.agence_key);
-    } catch (error) {
-        logger.error('Erreur de récupération des IDs des agences par nom:', error);
-        throw error;
-    } finally {
-        if (connection) await connection.end();
-    }
-};
+// RECUPERATION ET TRAITEMENT DES DONNÉES RECU PAR LE CLIENT
 
-app.post("/sync", async (req, res) => {
+app.post("/Pusher/sync", async (req, res) => {
     const { data } = req.body;
     for (const colonne of data) {
         console.log(colonne);
@@ -78,19 +66,16 @@ app.post("/sync", async (req, res) => {
 
     res.sendStatus(200);
 });
-app.get("/sync", async (req, res) => {
 
-    res.sendStatus(200);
-});
 
-const syncDataToClients = async () => {
+const syncDataToServer = async (contrainte) => {
     let connection;
     try {
         connection = await getDbConnection();
 
         const [services] = await connection.query("SELECT * FROM tb_service");
         const [agencies] = await connection.query("SELECT * FROM tb_agence");
-        const [tickets] = await connection.query("SELECT * FROM tb_ticket WHERE ticket_date2 >= NOW() - INTERVAL 3 DAY;");
+        const [tickets] = await connection.query(`SELECT * FROM tb_ticket ${contrainte}`);
         const [users] = await connection.query("SELECT * FROM tb_users");
         // Format the date fields in users
         users.forEach((user) => {
@@ -114,7 +99,7 @@ const syncDataToClients = async () => {
 
         for (const serverIp of serverIps) {
             for (const table of tables) {
-                await axios.post(`http://${serverIp}:3005/sync`, Data);
+                await axios.post(`http://${serverIp}:3005/Pusher/sync`, Data);
             }
         }
 
@@ -127,10 +112,21 @@ const syncDataToClients = async () => {
         if (connection) await connection.end();
     }
 };
-
+app.get("/Pusher/sync", async (req, res) => {
+try {
+    syncDataToServer("");
+    res.sendStatus(200);
+} catch (error) {
+    res.sendStatus(500);
+    logger.error("Erreur de récupération des données:", error);
+    console.error("Error fetching data:", error);
+    
+}
+    
+});
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
-    syncDataToClients();
+    syncDataToServer(wehereTciket);
     // Synchronize data to clients every 40 minutes
-    cron.schedule("*/3 * * * *", syncDataToClients);
+    cron.schedule("*/3 * * * *", syncDataToServer);
 });

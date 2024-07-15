@@ -20,7 +20,7 @@ const getDbConnection = async () => {
 };
 
 // RECUPERATION ET TRAITEMENT DES DONNÉES RECU PAR LE CLIENT
-app.post("/sync", async (req, res) => {
+app.post("/Pusher/sync", async (req, res) => {
     const { data } = req.body;
     for (const colonne of data) {
         const { table, records } = colonne;
@@ -116,7 +116,7 @@ const syncDataToClients = async () => {
                 };
                 console.log(filteredServices)
 
-                await axios.post(`http://${clientIp}:3005/sync`, Data);
+                await axios.post(`http://${clientIp}:3005/Pusher/sync`, Data);
             } catch (error) {
                 logger.error(`Erreur d'envoi de données au client ${clientIp}:`, error);
             }
@@ -135,7 +135,17 @@ const syncDataToClients = async () => {
         if (connection) await connection.end();
     }
 };
-
+app.get("/Pusher/sync", async (req, res) => {
+    try {
+        syncDataToClients();
+        res.sendStatus(200);
+    } catch (error) {
+        res.sendStatus(500);
+        logger.error("Erreur de récupération des données:", error);
+        console.error("Error fetching data:", error);
+        
+    }
+})
 // LANCEMENT DU SERVEUR
 app.listen(PORT, () => {
     console.log(`Le serveur s'exécute sur le port ${PORT}`);

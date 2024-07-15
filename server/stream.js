@@ -4,7 +4,7 @@ const mysqls = require("mysql");
 const MySQLEvents = require("@rodrigogs/mysql-events");
 const dbConfig = require("../config");
 const checkRole = require('../index');
-const logger=require('../log')
+const logger = require('../log')
 const moment = require("moment");
 
 const axios = require("axios");
@@ -16,31 +16,31 @@ const getDbConnection = async () => {
 };
 const getClientIps = async () => {
   let connection;
-  
+
   try {
-      connection = await getDbConnection();
-      const [rows] = await connection.query("SELECT agence_ip FROM tb_agence");
-      console.log(rows.length);
-      return rows.map((row) => row.agence_ip);
+    connection = await getDbConnection();
+    const [rows] = await connection.query("SELECT agence_ip FROM tb_agence");
+    console.log(rows.length);
+    return rows.map((row) => row.agence_ip);
   } catch (error) {
-      logger.error('Erreur de récupération des IPs des clients:', error);
-      throw error;
+    logger.error('Erreur de récupération des IPs des clients:', error);
+    throw error;
   } finally {
-      if (connection) await connection.end();
+    if (connection) await connection.end();
   }
 };
 
 const getServerIps = async () => {
   let connection;
   try {
-      connection = await getDbConnection();
-      const [rows] = await connection.query("SELECT url_master FROM tb_config_system");
-      return rows.map((row) => row.url_master);
+    connection = await getDbConnection();
+    const [rows] = await connection.query("SELECT url_master FROM tb_config_system");
+    return rows.map((row) => row.url_master);
   } catch (error) {
-      logger.error('Erreur de récupération des IPs des serveurs:', error);
-      throw error;
+    logger.error('Erreur de récupération des IPs des serveurs:', error);
+    throw error;
   } finally {
-      if (connection) await connection.end();
+    if (connection) await connection.end();
   }
 };
 (async () => {
@@ -58,7 +58,7 @@ const getServerIps = async () => {
     const connection = mysqls.createConnection({
       host: dbConfig.host,
       user: config.user,
-      password:config.password,
+      password: config.password,
       port: config.port,
       database: dbConfig.database,
       charset: 'utf8mb4',  // Use utf8mb4 instead of UTF8
@@ -85,42 +85,45 @@ const getServerIps = async () => {
             const { after, before } = row;
             after.creation_date = moment(after.creation_date).format(
               "YYYY-MM-DD HH:mm:ss"
-          );
+            );
             const tables = [
-              {table: "tb_users", records: [after]}
+              { table: "tb_users", records: [after] }
             ];
 
-            if(after.user_password != before.user_password){
+            if (after.user_password != before.user_password) {
               const isMaster = await checkRole();
-              if (isMaster==1) {
-                try{
-                  const clientIps = await getClientIps();
-                  console.log(clientIps);
-                  for (clientIp of clientIps) {
+              if (isMaster == 1) {
+                const clientIps = await getClientIps();
+
+                for (clientIp of clientIps) {
+                  try {
                     console.log(clientIp);
-                    await axios.post(`http://192.168.11.100:3005/sync`, {data:tables});
-                    console.log(`http://${clientIp}:3005/sync`);
+                    await axios.post(`http://${clientIp}:3005/Pusher/sync`, { data: tables });
+                    console.log(`http://${clientIp}:3005/Pusher/sync`);
+
+                  } catch (error) {
+                    logger.error(`Erreur d'envoi de données au client ${clientIp}:`, error);
                   }
-                }catch(error){
-                  console.log(`Error d'envoie des données ${clientIp}`, error);
                 }
               } else {
-                try{
-                  const serverIps = await getServerIps();
-                  for (serverIp of serverIps) {
-                    await axios.post(`http://${serverIp}:3005/sync`, {data:tables});
+                const serverIps = await getServerIps();
+
+                for (serverIp of serverIps) {
+                  try {
+
+                    await axios.post(`http://${serverIp}:3005/Pusher/sync`, { data: tables });
+
+                  } catch (error) {
+                    console.log(`Error d'envoie des données ${serverIp}`, error);
                   }
-                }catch(error){
-                  console.log(`Error d'envoie des données ${serverIp}`, error);
                 }
               }
-              console.log('Ne pas egal ', after.user_password,'!=',before.user_password);
+              console.log('Ne pas egal ', after.user_password, '!=', before.user_password);
             }
 
           });
         }
 
-        
       },
     });
 
