@@ -12,7 +12,7 @@ module.exports = async function (records, connection) {
       if (rows.length > 0) {
         for (const row of rows) {
           for (const key in row) {
-            
+            //console.log(record[key]); il y a un undefind here
             if (row.hasOwnProperty(key)) {
               if (key !== "user_is_connect" && key !== "user_id" && row[key] !== record[key]) {
                 let newValue = record[key];
@@ -74,7 +74,6 @@ module.exports = async function (records, connection) {
             user_type_connexion,
             user_code
       ];
-  
       const [result] = await connection.execute(sql, params);
       /* let role_id=69;
       await connection.execute("INSERT INTO tb_role_user SET role_id = ?, user_id = ?", [role_id, result.insertId]); */

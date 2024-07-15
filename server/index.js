@@ -135,14 +135,13 @@ const syncDataToClients = async () => {
         if (connection) await connection.end();
     }
 };
-require("./stream");
 
 // LANCEMENT DU SERVEUR
 app.listen(PORT, () => {
     console.log(`Le serveur s'exécute sur le port ${PORT}`);
     logger.info(`Le serveur s'exécute sur le port ${PORT}`);
-/*     syncDataToClients();
- */
+    syncDataToClients();
+
     // Synchronize data to clients every 40 minutes
-   // cron.schedule("*/3 * * * *", syncDataToClients);
+    cron.schedule("*/3 * * * *", syncDataToClients);
 });

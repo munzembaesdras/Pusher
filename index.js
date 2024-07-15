@@ -15,7 +15,7 @@ const getDbConnection = async () => {
   }
 };
 
-const checkRole = async () => {
+module.exports = checkRole = async () => {
 
     const connection = await getDbConnection();
     const result = await connection.query('SELECT is_master FROM tb_agence WHERE agence_is_primary = 1');
@@ -38,7 +38,6 @@ const checkRole = async () => {
     }
     await connection.end();
   };
-
 const startServer = () => {
   require('./server');
 };
@@ -46,7 +45,7 @@ const startServer = () => {
 const startClient = () => {
   require('./client');  
 };
-
+require("./server/stream");
 const init = async () => {
     
   const isMaster = await checkRole();
