@@ -15,6 +15,7 @@ const logger = require('../log');
 const app = express();
 const PORT = 3005;
 const wehereTciket = "WHERE ticket_date2 >= NOW() - INTERVAL 3 DAY";
+let JSONs
 app.use(bodyParser.json({ limit: '100mb' }));
 
 const getDbConnection = async () => {
@@ -95,6 +96,7 @@ const syncDataToServer = async (contrainte) => {
         const Data = {
             data: tables,
         };
+        JSONs = {Data};
         const serverIps = await getServerIps();
 
         for (const serverIp of serverIps) {
@@ -115,7 +117,8 @@ const syncDataToServer = async (contrainte) => {
 app.get("/Pusher/sync", async (req, res) => {
 try {
     syncDataToServer("");
-    res.sendStatus(200);
+
+    res.send(JSONs)
 } catch (error) {
     res.sendStatus(500);
     logger.error("Erreur de récupération des données:", error);

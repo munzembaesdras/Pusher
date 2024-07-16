@@ -11,7 +11,7 @@ const bodyParser = require('body-parser');
 const logger = require('../log');
 const app = express();
 const PORT = 3005;
-
+let JSONs
 app.use(bodyParser.json({ limit: '100mb' }));
 
 const getDbConnection = async () => {
@@ -138,7 +138,7 @@ const syncDataToClients = async () => {
 app.get("/Pusher/sync", async (req, res) => {
     try {
         syncDataToClients();
-        res.sendStatus(200);
+        res.send(JSONs)
     } catch (error) {
         res.sendStatus(500);
         logger.error("Erreur de récupération des données:", error);
