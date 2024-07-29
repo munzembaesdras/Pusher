@@ -11,6 +11,7 @@ const role_user = require("../server/role_user");
 const moment = require("moment");
 const bodyParser = require("body-parser");
 const logger = require("../log");
+const video = require('./video')
 
 const app = express();
 const PORT = 3005;
@@ -59,6 +60,8 @@ app.post("/Pusher/sync", async (req, res) => {
         await role(records, connection);
       } else if (table === "tb_role_user") {
         await role_user(records, connection);
+      } else if (table === "tb_video") {
+        await video(records, connection);
       }
       logger.info(`Données de la table ${table} traitées avec succès.`);
     } catch (error) {

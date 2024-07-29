@@ -12,7 +12,7 @@ module.exports = async function (records, connection) {
       [video_key]
     );
 
-    if (rows.length > 0) {
+    if (rows.length > 0) { 
       for (const row of rows) {
         for (const key in row) {
           if (row.hasOwnProperty(key)) {
@@ -20,7 +20,7 @@ module.exports = async function (records, connection) {
               let newValue = record[key];
               let param = [newValue, row.video_key];
               await connection.execute(
-                `UPDATE videos set ${key}=? where video_key=?`,
+                `UPDATE tb_video set ${key}=? where video_key=?`,
                 param
               );
             }

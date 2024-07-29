@@ -7,7 +7,7 @@ const {sftpConfig ,dbConfig } = require("../config"); // Votre configuration de 
 // Fonction pour récupérer la liste des vidéos de la base de données
 const getVideosFromDatabase = async () => {
   const connection = await mysql.createConnection(dbConfig);
-  const [videos] = await connection.query("SELECT video_id, video_key FROM videos");
+  const [videos] = await connection.query("SELECT video_name, video_id, video_key FROM tb_video");
   await connection.end();
   return videos;
 };
@@ -22,10 +22,10 @@ const checkAndDownloadMissingVideos = async () => {
 
   // Vérification des vidéos manquantes
   for (const video of videos) {
-    const localFilePath = path.join(sftpConfig.localPath, video.video_key);
+    const localFilePath = path.join(sftpConfig.localPath, video.video_name);
     if (!fs.existsSync(localFilePath)) {
-      console.log(`Video missing: ${video.video_key}`);
-      missingVideos.push(video.video_key);
+      console.log(`Video missing: ${video.video_name}`);
+      missingVideos.push(video.video_name);
     }
   }
 
@@ -34,14 +34,18 @@ const checkAndDownloadMissingVideos = async () => {
     const sftp = new Client();
     try {
       console.log("Connecting to SFTP server...");
-      await sftp.connect(sftpConfig);
+      await sftp.connect({host:sftpConfig.host, 
+        username:sftpConfig.username, 
+        password:sftpConfig.password, 
+        port:sftpConfig.port
+      });
 
-      for (const videoKey of missingVideos) {
-        const remoteFilePath = `${sftpConfig.remotePath}${videoKey} `; // Chemin distant du fichier
-        const localFilePath = path.join(sftpConfig.localPath, videoKey); // Chemin local du fichier
-        console.log(`Downloading ${videoKey} from SFTP...`);
+      for (const video_name of missingVideos) {
+        const remoteFilePath = `${sftpConfig.remotePath}${video_name} `; // Chemin distant du fichier
+        const localFilePath = path.join(sftpConfig.localPath, video_name); // Chemin local du fichier
+        console.log(`Downloading ${video_name} from SFTP...`);
         await sftp.fastGet(remoteFilePath, localFilePath);
-        console.log(`Downloaded ${videoKey} to ${localFilePath}`);
+        console.log(`Downloaded ${video_name} to ${localFilePath}`);
       }
     } catch (error) {
       console.error(`Failed to fetch files: `, error);
