@@ -1,9 +1,9 @@
 module.exports = {
   dbConfig: {
-    host: "192.168.11.110",
-    user: "extratime",
-    port: 3306,
-    password: "Josam@3307",
+    host: "localhost",
+    user: "root",
+    port: 3307,
+    password: "admin",
     database: "extratime",
   },
   sftpConfig: {

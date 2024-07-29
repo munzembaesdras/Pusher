@@ -4,7 +4,7 @@ const axios = require("axios");
 const cron = require("node-cron");
 const { dbConfig } = require("../config");
 const service = require("./service");
-const user = require("./user");
+const user = require("../server/user");
 const partenaire = require("./partenaire");
 const role = require("./role");
 const role_user = require("../server/role_user");
@@ -65,12 +65,13 @@ app.post("/Pusher/sync", async (req, res) => {
       }
       logger.info(`Données de la table ${table} traitées avec succès.`);
     } catch (error) {
-      logger.error("Erreur de traitement des données:", error);
-      console.error("Error processing data:", error);
+      logger.error(`Erreur de traitement de donnée de la table ${table}:`, error);
     } finally {
       await connection.end();
+      logger.info("Connexion à la base de données fermée.");
     }
   }
+  logger.info("Données du server traitées avec succès");
   res.sendStatus(200);
 });
 
@@ -136,7 +137,7 @@ app.get("/Pusher/sync", async (req, res) => {
     );
 
     res.send(JSONs);
-    logger.info("Données envoyées avec succès.");
+    logger.info("Données envoyées au server avec succès.");
   } catch (error) {
     res.sendStatus(500);
     logger.error("Erreur de récupération des données:", error);
@@ -145,7 +146,6 @@ app.get("/Pusher/sync", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
   logger.info(`Le serveur s'exécute sur le port ${PORT}`);
   syncDataToServer(wehereTciket);
   // Synchronize data to clients every 40 minutes

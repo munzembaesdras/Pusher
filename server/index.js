@@ -31,19 +31,17 @@ app.post("/Pusher/sync", async (req, res) => {
       } else if (table === "tb_role_user") {
         await role_user(records, connection);
       } else if (table === "tb_ticket") {
-        console.log("ticket");
-        console.log(records);
-        logger.info("Données de traitement des tickets:", records); // Enregistrement des données de traitement des tickets
         await ticket(records, connection);
       }
+      logger.info(`Données de la table ${table} traitées avec succès.`);
     } catch (error) {
-      logger.error("Données de traitement des erreurs:", error);
-      console.error("Données de traitement des erreurs:", error);
+      logger.error(`Erreur de traitement de donnée de la table ${table}:`, error);
     } finally {
       await connection.end();
+      logger.info(`Connexion à la base de données fermée.`);
     }
   }
-  logger.info("Données traitées avec succès");
+  logger.info("Données du client traitées avec succès");
   res.sendStatus(200);
 });
 
@@ -128,10 +126,10 @@ const syncDataToClients = async () => {
         const tables = [
           { table: "tb_agence", records: agences },
           { table: "tb_service", records: filteredServices },
-          { table: "tb_video", records: filteredVideos },
           { table: "tb_role", records: role },
           { table: "tb_users", records: users },
           { table: "tb_role_user", records: role_user },
+          { table: "tb_video", records: filteredVideos },
         ];
         const Data = {
           agence_nom: "", // Remplissez cette valeur selon vos besoins
@@ -166,7 +164,6 @@ app.get("/Pusher/sync", async (req, res) => {
 });
 // LANCEMENT DU SERVEUR
 app.listen(PORT, () => {
-  console.log(`Le serveur s'exécute sur le port ${PORT}`);
   logger.info(`Le serveur s'exécute sur le port ${PORT}`);
   syncDataToClients();
 

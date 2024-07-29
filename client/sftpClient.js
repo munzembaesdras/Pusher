@@ -2,19 +2,30 @@ const fs = require("fs");
 const path = require("path");
 const Client = require("ssh2-sftp-client");
 const mysql = require("mysql2/promise");
-const {sftpConfig ,dbConfig } = require("../config"); // Votre configuration de base de données
+const { sftpConfig, dbConfig } = require("../config");
+const logger = require("../log"); // Assurez-vous que vous avez un module de log configuré
 
 // Fonction pour récupérer la liste des vidéos de la base de données
 const getVideosFromDatabase = async () => {
-  const connection = await mysql.createConnection(dbConfig);
-  const [videos] = await connection.query("SELECT video_name, video_id, video_key FROM tb_video");
-  await connection.end();
-  return videos;
+  let connection;
+  try {
+    connection = await mysql.createConnection(dbConfig);
+    const [videos] = await connection.query("SELECT video_name, video_id, video_key FROM tb_video");
+    logger.info(`Fetched ${videos.length} videos from database.`);
+    return videos;
+  } catch (error) {
+    logger.error("Error fetching videos from database:", error);
+    throw error;
+  } finally {
+    if (connection) {
+      await connection.end();
+      logger.info("Database connection closed.");
+    }
+  }
 };
 
 // Fonction pour vérifier les vidéos manquantes et les télécharger
 const checkAndDownloadMissingVideos = async () => {
-  /* const localDirectory = "./videos"; */ // Répertoire local où les vidéos doivent être stockées
   const videos = await getVideosFromDatabase();
   
   // Liste des vidéos manquantes
@@ -24,7 +35,7 @@ const checkAndDownloadMissingVideos = async () => {
   for (const video of videos) {
     const localFilePath = path.join(sftpConfig.localPath, video.video_name);
     if (!fs.existsSync(localFilePath)) {
-      console.log(`Video missing: ${video.video_name}`);
+      logger.warn(`Video missing: ${video.video_name}`);
       missingVideos.push(video.video_name);
     }
   }
@@ -33,27 +44,29 @@ const checkAndDownloadMissingVideos = async () => {
   if (missingVideos.length > 0) {
     const sftp = new Client();
     try {
-      console.log("Connecting to SFTP server...");
-      await sftp.connect({host:sftpConfig.host, 
-        username:sftpConfig.username, 
-        password:sftpConfig.password, 
-        port:sftpConfig.port
+      logger.info("Connecting to SFTP server...");
+      await sftp.connect({
+        host: sftpConfig.host,
+        username: sftpConfig.username,
+        password: sftpConfig.password,
+        port: sftpConfig.port
       });
 
       for (const video_name of missingVideos) {
-        const remoteFilePath = `${sftpConfig.remotePath}${video_name} `; // Chemin distant du fichier
-        const localFilePath = path.join(sftpConfig.localPath, video_name); // Chemin local du fichier
-        console.log(`Downloading ${video_name} from SFTP...`);
+        const remoteFilePath = `${sftpConfig.remotePath}${video_name}`;
+        const localFilePath = path.join(sftpConfig.localPath, video_name);
+        logger.info(`Downloading ${video_name} from SFTP...`);
         await sftp.fastGet(remoteFilePath, localFilePath);
-        console.log(`Downloaded ${video_name} to ${localFilePath}`);
+        logger.info(`Downloaded ${video_name} to ${localFilePath}`);
       }
     } catch (error) {
-      console.error(`Failed to fetch files: `, error);
+      logger.error("Failed to fetch files from SFTP:", error);
     } finally {
       sftp.end();
+      logger.info("SFTP connection closed.");
     }
   } else {
-    console.log("No missing videos found.");
+    logger.info("No missing videos found.");
   }
 };
 
