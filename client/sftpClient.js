@@ -2,9 +2,8 @@ const fs = require("fs");
 const path = require("path");
 const Client = require("ssh2-sftp-client");
 const mysql = require("mysql2/promise");
-const dbConfig = require("../config"); // Votre configuration de base de données
-const sftpConfig=require("../config")
-
+const { dbConfig } = require("../config"); // Votre configuration de base de données
+const sftpConfig = require("../config");
 
 // Fonction pour récupérer la liste des vidéos de la base de données
 const getVideosFromDatabase = async () => {

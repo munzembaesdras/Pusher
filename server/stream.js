@@ -2,13 +2,12 @@ const mysql = require("mysql2/promise");
 const mysqls = require("mysql");
 
 const MySQLEvents = require("@rodrigogs/mysql-events");
-const dbConfig = require("../config");
-const checkRole = require('../index');
-const logger = require('../log')
+const { dbConfig } = require("../config");
+const checkRole = require("../index");
+const logger = require("../log");
 const moment = require("moment");
 
 const axios = require("axios");
-const config = require("../config");
 
 const getDbConnection = async () => {
   const connection = await mysql.createConnection(dbConfig);
@@ -23,7 +22,7 @@ const getClientIps = async () => {
     console.log(rows.length);
     return rows.map((row) => row.agence_ip);
   } catch (error) {
-    logger.error('Erreur de récupération des IPs des clients:', error);
+    logger.error("Erreur de récupération des IPs des clients:", error);
     throw error;
   } finally {
     if (connection) await connection.end();
@@ -34,10 +33,12 @@ const getServerIps = async () => {
   let connection;
   try {
     connection = await getDbConnection();
-    const [rows] = await connection.query("SELECT url_master FROM tb_config_system");
+    const [rows] = await connection.query(
+      "SELECT url_master FROM tb_config_system"
+    );
     return rows.map((row) => row.url_master);
   } catch (error) {
-    logger.error('Erreur de récupération des IPs des serveurs:', error);
+    logger.error("Erreur de récupération des IPs des serveurs:", error);
     throw error;
   } finally {
     if (connection) await connection.end();
@@ -57,14 +58,14 @@ const getServerIps = async () => {
   const program = async () => {
     const connection = mysqls.createConnection({
       host: dbConfig.host,
-      user: config.user,
-      password: config.password,
-      port: config.port,
+      user: dbConfig.user,
+      password: dbConfig.password,
+      port: dbConfig.port,
       database: dbConfig.database,
-      charset: 'utf8mb4',  // Use utf8mb4 instead of UTF8
+      charset: "utf8mb4", // Use utf8mb4 instead of UTF8
       authPlugins: {
-        mysql_clear_password: () => () => Buffer.from(dbConfig.password) // Example for clear password auth
-      }
+        mysql_clear_password: () => () => Buffer.from(dbConfig.password), // Example for clear password auth
+      },
     });
 
     const instance = new MySQLEvents(connection, {
@@ -80,15 +81,17 @@ const getServerIps = async () => {
       onEvent: async (event) => {
         const { type, schema, table, affectedRows } = event;
         console.log("salut biso yzyo");
-        if (type === 'UPDATE' && schema === 'extratime' && table === 'tb_users') {
+        if (
+          type === "UPDATE" &&
+          schema === "extratime" &&
+          table === "tb_users"
+        ) {
           affectedRows.forEach(async (row) => {
             const { after, before } = row;
             after.creation_date = moment(after.creation_date).format(
               "YYYY-MM-DD HH:mm:ss"
             );
-            const tables = [
-              { table: "tb_users", records: [after] }
-            ];
+            const tables = [{ table: "tb_users", records: [after] }];
 
             if (after.user_password != before.user_password) {
               const isMaster = await checkRole();
@@ -98,11 +101,15 @@ const getServerIps = async () => {
                 for (clientIp of clientIps) {
                   try {
                     console.log(clientIp);
-                    await axios.post(`http://${clientIp}:3005/Pusher/sync`, { data: tables });
+                    await axios.post(`http://${clientIp}:3005/Pusher/sync`, {
+                      data: tables,
+                    });
                     console.log(`http://${clientIp}:3005/Pusher/sync`);
-
                   } catch (error) {
-                    logger.error(`Erreur d'envoi de données au client ${clientIp}:`, error);
+                    logger.error(
+                      `Erreur d'envoi de données au client ${clientIp}:`,
+                      error
+                    );
                   }
                 }
               } else {
@@ -110,20 +117,26 @@ const getServerIps = async () => {
 
                 for (serverIp of serverIps) {
                   try {
-
-                    await axios.post(`http://${serverIp}:3005/Pusher/sync`, { data: tables });
-
+                    await axios.post(`http://${serverIp}:3005/Pusher/sync`, {
+                      data: tables,
+                    });
                   } catch (error) {
-                    console.log(`Error d'envoie des données ${serverIp}`, error);
+                    console.log(
+                      `Error d'envoie des données ${serverIp}`,
+                      error
+                    );
                   }
                 }
               }
-              console.log('Ne pas egal ', after.user_password, '!=', before.user_password);
+              console.log(
+                "Ne pas egal ",
+                after.user_password,
+                "!=",
+                before.user_password
+              );
             }
-
           });
         }
-
       },
     });
 
