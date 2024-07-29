@@ -1,3 +1,7 @@
+const mysql = require("mysql2/promise");
+const dbConfig = require("../config");
+const { checkAndDownloadMissingVideos } = require("./sftpClient");
+
 module.exports = async function (records, connection) {
   for (const record of records) {
     const { video_key } = record;
@@ -9,7 +13,6 @@ module.exports = async function (records, connection) {
     );
 
     if (rows.length > 0) {
-      // La clé existe, mettez à jour les enregistrements
       for (const row of rows) {
         for (const key in row) {
           if (row.hasOwnProperty(key)) {
@@ -17,7 +20,7 @@ module.exports = async function (records, connection) {
               let newValue = record[key];
               let param = [newValue, row.video_key];
               await connection.execute(
-                `UPDATE tb_video SET ${key}=? WHERE video_key=?`,
+                `UPDATE videos set ${key}=? where video_key=?`,
                 param
               );
             }
@@ -31,37 +34,39 @@ module.exports = async function (records, connection) {
     const {
       video_name,
       video_desc,
-      video_create_date,
-      video_modify_date,
       video_create_user_id,
       video_modify_user_id,
+      video_create_date,
+      video_modify_date,
       video_status,
     } = record;
-
     const sql = `
-      INSERT INTO tb_video (
-        video_name,
-        video_desc,
-        video_create_date,
-        video_modify_date,
-        video_create_user_id,
-        video_modify_user_id,
-        video_status,
-        video_key
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `;
+        INSERT INTO tb_video (
+          video_name,
+          video_desc,
+          video_create_user_id,
+          video_modify_user_id,
+          video_create_date,
+          video_modify_date,
+          video_status,
+          video_key
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `;
 
     const params = [
       video_name,
       video_desc,
-      video_create_date,
-      video_modify_date,
       video_create_user_id,
       video_modify_user_id,
+      video_create_date,
+      video_modify_date,
       video_status,
       video_key,
     ];
-    const [result] = await connection.execute(sql, params);
+    await connection.execute(sql, params);
   }
   await connection.end();
+
+  // Après avoir enregistré les vidéos, vérifiez et téléchargez les vidéos manquantes
+  await checkAndDownloadMissingVideos();
 };

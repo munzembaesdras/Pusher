@@ -2,8 +2,8 @@ module.exports = {
   dbConfig: {
     host: "localhost",
     user: "root",
-    port: 3306,
-    password: "",
+    port: 3307,
+    password: "admin",
     database: "extratime",
   },
   sftpConfig: {
@@ -11,5 +11,7 @@ module.exports = {
     port: 22,
     username: "your_username", // Remplacez par votre nom d'utilisateur SFTP
     password: "your_password", // Remplacez par votre mot de passe SFTP
+    remotePath: "/", // Chemin distant où les vidéos sont stockées
+    localPath: "C:/glassfish-4.1.2/glassfish4/glassfish/domains/domain1/applications/Extratimeplus/resources/main/video", // Répertoire local où les vidéos doivent être stockées
   },
 };

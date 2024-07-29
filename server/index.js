@@ -71,7 +71,7 @@ const syncDataToClients = async () => {
     // RECUPERATION DES VIDEOS PAR RAPPORT AUX VIDEOS_AGENCES
     const [videos_agence] = await connection.query(`
             SELECT va.agence_id, a.agence_ip, v.* 
-            FROM tb_videos_agence va 
+            FROM tb_video_agence va 
             JOIN tb_agence a ON a.agence_id = va.agence_id 
             JOIN tb_video v ON v.video_id = va.video_id
         `);
@@ -133,11 +133,11 @@ const syncDataToClients = async () => {
           { table: "tb_users", records: users },
           { table: "tb_role_user", records: role_user },
         ];
-        console.log(Data);
         const Data = {
           agence_nom: "", // Remplissez cette valeur selon vos besoins
           data: tables,
         };
+        console.log(JSON.stringify(Data));
 
         await axios.post(`http://${clientIp}:3005/Pusher/sync`, Data);
       } catch (error) {
