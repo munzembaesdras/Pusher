@@ -12,6 +12,8 @@ const logger = require("../log");
 const app = express();
 const PORT = 3005;
 let JSONs;
+let sentData = [];
+
 app.use(bodyParser.json({ limit: "100mb" }));
 
 const getDbConnection = async () => {
@@ -50,60 +52,31 @@ const syncDataToClients = async () => {
   try {
     connection = await getDbConnection();
 
-    // RECUPERATION DES DONNÉES DES TABLES
+    // Récupération des données des tables
     const [agences] = await connection.query("SELECT * FROM tb_agence");
-
-    const [role] = await connection.query(
-      "SELECT r.role_nom, r.role_status, p.partenairenom FROM tb_role r JOIN tb_partenaire p ON r.partenaire_id = p.partenaireid;"
-    );
+    const [role] = await connection.query("SELECT r.role_nom, r.role_status, p.partenairenom FROM tb_role r JOIN tb_partenaire p ON r.partenaire_id = p.partenaireid;");
     const [users] = await connection.query("SELECT * FROM tb_users");
-    users.forEach((user) => {
-      user.creation_date = moment(user.creation_date).format(
-        "YYYY-MM-DD HH:mm:ss"
-      );
+    users.forEach(user => {
+      user.creation_date = moment(user.creation_date).format("YYYY-MM-DD HH:mm:ss");
     });
-    const [role_user] = await connection.query(
-      "SELECT u.user_login, r.role_nom FROM tb_role_user ru JOIN tb_users u ON ru.user_id=u.user_id JOIN tb_role r ON ru.role_id=r.role_id"
-    );
-
-    // RECUPERATION DES VIDEOS PAR RAPPORT AUX VIDEOS_AGENCES
-    const [videos_agence] = await connection.query(`
-            SELECT va.agence_id, a.agence_ip, v.* 
-            FROM tb_video_agence va 
-            JOIN tb_agence a ON a.agence_id = va.agence_id 
-            JOIN tb_video v ON v.video_id = va.video_id
-        `);
-    videos_agence.forEach((video) => {
-      video.video_create_date = moment(video.video_create_date).format(
-        "YYYY-MM-DD HH:mm:ss"
-      );
-      video.video_modify_date = moment(video.video_modify_date).format(
-        "YYYY-MM-DD HH:mm:ss"
-      );
+    const [role_user] = await connection.query("SELECT u.user_login, r.role_nom FROM tb_role_user ru JOIN tb_users u ON ru.user_id=u.user_id JOIN tb_role r ON ru.role_id=r.role_id");
+    const [videos_agence] = await connection.query("SELECT va.agence_id, a.agence_ip, v.* FROM tb_video_agence va JOIN tb_agence a ON a.agence_id = va.agence_id JOIN tb_video v ON v.video_id = va.video_id");
+    videos_agence.forEach(video => {
+      video.video_create_date = moment(video.video_create_date).format("YYYY-MM-DD HH:mm:ss");
+      video.video_modify_date = moment(video.video_modify_date).format("YYYY-MM-DD HH:mm:ss");
+    });
+    const [services_agence] = await connection.query("SELECT sa.agence_id, a.agence_ip, s.* FROM tb_service_agence sa JOIN tb_agence a ON a.agence_id = sa.agence_id JOIN tb_service s ON s.service_id = sa.service_id");
+    services_agence.forEach(service => {
+      service.service_create_date = moment(service.service_create_date).format("YYYY-MM-DD HH:mm:ss");
     });
 
-    // RECUPERATION DES SERVICES AGENCE
-    const [services_agence] = await connection.query(`
-            SELECT sa.agence_id, a.agence_ip, s.* 
-            FROM tb_service_agence sa 
-            JOIN tb_agence a ON a.agence_id = sa.agence_id 
-            JOIN tb_service s ON s.service_id = sa.service_id
-        `);
-    services_agence.forEach((service) => {
-      service.service_create_date = moment(service.service_create_date).format(
-        "YYYY-MM-DD HH:mm:ss"
-      );
-    });
-
-    // RECUPERATION DES ADRESSES IP DES CLIENTS
+    // Récupération des adresses IP des clients
     const getClientIps = async () => {
       let connection;
       try {
         connection = await getDbConnection();
-        const [rows] = await connection.query(
-          "SELECT agence_ip FROM tb_agence"
-        );
-        return rows.map((row) => row.agence_ip);
+        const [rows] = await connection.query("SELECT agence_ip FROM tb_agence");
+        return rows.map(row => row.agence_ip);
       } catch (error) {
         logger.error("Erreur de récupération des IPs des clients:", error);
         throw error;
@@ -113,15 +86,12 @@ const syncDataToClients = async () => {
     };
     const clientIps = await getClientIps();
 
-    // ENVOI DES DONNÉES AUX CLIENTS
+    // Envoi des données aux clients et stockage des données envoyées
+    sentData = [];
     for (const clientIp of clientIps) {
       try {
-        const filteredServices = services_agence.filter(
-          (sa) => sa.agence_ip === clientIp
-        );
-        const filteredVideos = videos_agence.filter(
-          (va) => va.agence_ip === clientIp
-        );
+        const filteredServices = services_agence.filter(sa => sa.agence_ip === clientIp);
+        const filteredVideos = videos_agence.filter(va => va.agence_ip === clientIp);
 
         const tables = [
           { table: "tb_agence", records: agences },
@@ -137,14 +107,16 @@ const syncDataToClients = async () => {
         };
         console.log(JSON.stringify(Data));
 
+        // Stockage des données envoyées
+        sentData.push(Data);
+
         await axios.post(`http://${clientIp}:3005/Pusher/sync`, Data);
       } catch (error) {
         logger.error(`Erreur d'envoi de données au client ${clientIp}:`, error);
       }
     }
 
-    // Enregistrer les données envoyées dans un fichier JSON
-    logger.info(`Données envoyées aux clients avec succès:`);
+    logger.info("Données envoyées aux clients avec succès.");
   } catch (error) {
     logger.error("Erreur d'envoi de données aux clients:", error);
   } finally {
@@ -152,16 +124,22 @@ const syncDataToClients = async () => {
   }
 };
 
-app.get("/Pusher/sync", async (req, res) => {
+
+app.get("/Pusher/sync", (req, res) => {
   try {
     syncDataToClients();
-    res.send(JSONs);
+    if (sentData.length === 0) {
+      res.status(404).json({ message: "No data has been sent to clients yet." });
+    } else {
+      res.json(sentData);
+    }
   } catch (error) {
     res.sendStatus(500);
     logger.error("Erreur de récupération des données:", error);
     console.error("Error fetching data:", error);
   }
 });
+
 // LANCEMENT DU SERVEUR
 app.listen(PORT, () => {
   logger.info(`Le serveur s'exécute sur le port ${PORT}`);
