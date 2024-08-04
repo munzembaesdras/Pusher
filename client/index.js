@@ -149,5 +149,5 @@ app.listen(PORT, () => {
   logger.info(`Le serveur s'exécute sur le port ${PORT}`);
   syncDataToServer(wehereTciket);
   // Synchronize data to clients every 40 minutes
-  cron.schedule("0 0,40 0-17 * * 1-6", () => syncDataToServer(wehereTciket));
+  cron.schedule("*/15 8-17 * * 1-6", () => syncDataToServer(wehereTciket));
 });

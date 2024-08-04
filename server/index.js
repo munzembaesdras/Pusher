@@ -88,10 +88,14 @@ const syncDataToClients = async () => {
 
     // Envoi des données aux clients et stockage des données envoyées
     sentData = [];
-    for (const clientIp of clientIps) {
+    const promises = clientIps.map(async (clientIp) => {
       try {
-        const filteredServices = services_agence.filter(sa => sa.agence_ip === clientIp);
-        const filteredVideos = videos_agence.filter(va => va.agence_ip === clientIp);
+        const filteredServices = services_agence.filter(
+          (sa) => sa.agence_ip === clientIp
+        );
+        const filteredVideos = videos_agence.filter(
+          (va) => va.agence_ip === clientIp
+        );
 
         const tables = [
           { table: "tb_agence", records: agences },
@@ -101,20 +105,21 @@ const syncDataToClients = async () => {
           { table: "tb_role_user", records: role_user },
           { table: "tb_video", records: filteredVideos },
         ];
+
         const Data = {
-          agence_nom: "", // Remplissez cette valeur selon vos besoins
+          agence_nom: "", // Remplir cette valeur selon tes besoins
           data: tables,
         };
-        console.log(JSON.stringify(Data));
 
-        // Stockage des données envoyées
         sentData.push(Data);
 
         await axios.post(`http://${clientIp}:3005/Pusher/sync`, Data);
       } catch (error) {
         logger.error(`Erreur d'envoi de données au client ${clientIp}:`, error);
       }
-    }
+    });
+
+    await Promise.all(promises);
 
     logger.info("Données envoyées aux clients avec succès.");
   } catch (error) {
@@ -146,5 +151,5 @@ app.listen(PORT, () => {
   syncDataToClients();
 
   // Synchronize data to clients every 40 minutes
-  cron.schedule("0 */5 0-17 * * 1-6", syncDataToClients);
+  cron.schedule("*/30 8-17 * * 1-6", syncDataToClients);
 });

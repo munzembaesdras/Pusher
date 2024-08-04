@@ -76,14 +76,14 @@ const getServerIps = async () => {
 
     instance.addTrigger({
       name: "monitoring all statements",
-      expression: "extratime.tb_users",
+      expression: `${dbConfig.database}.tb_users`,
       statement: MySQLEvents.STATEMENTS.ALL,
       onEvent: async (event) => {
         const { type, schema, table, affectedRows } = event;
         console.log("salut biso yzyo");
         if (
           type === "UPDATE" &&
-          schema === "extratime" &&
+          schema === dbConfig.database &&
           table === "tb_users"
         ) {
           affectedRows.forEach(async (row) => {
