@@ -18,6 +18,8 @@ const PORT = 3006;
 const wehereTciket = "SELECT * FROM tb_ticket WHERE ticket_date2 >= NOW() - INTERVAL 3 DAY";
 let JSONs;
 app.use(bodyParser.json({ limit: "100mb" }));
+
+// Route pour recevoir les données des clients
 app.post("/Pusher/sync", async (req, res) => {
   const { data } = req.body;
   logger.info("Données reçues du client:", data);
@@ -66,12 +68,12 @@ app.post("/Pusher/sync", async (req, res) => {
   res.sendStatus(200);
 });
 
-
+// RECUPERATION DES DONNEES DE LA BASE DE DONNEES CENTRALE
 const getDbConnection = async (config) => {
   const connection = await mysql.createConnection(config);
   return connection;
 };
-
+// RECUPERATION DES DONNEES DE LA BASE DE DONNEES CLIENT
 const getClientDbConfigs = async () => {
   let connection;
   try {
@@ -91,7 +93,7 @@ const getClientDbConfigs = async () => {
   }
 };
 
-
+// SYNCHRONISATION DES DONNEES DES AGENCES
 const syncDataFromAgencies = async (contrainte) => {
   try {
     const clientDbConfigs = await getClientDbConfigs();
@@ -141,7 +143,7 @@ const syncDataFromAgencies = async (contrainte) => {
   }
 };
 
-
+// TRAITEMENT DES DONNEES RECUPEREES
 const processAgencyData = async (tables, agencyHost, Data) => {
   // Ici, tu peux implémenter le code pour traiter les données récupérées
   // ou les envoyer à un autre serveur via axios par exemple
