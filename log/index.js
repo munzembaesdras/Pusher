@@ -1,3 +1,4 @@
+// ./config/logger.js
 const { createLogger, format, transports } = require('winston');
 require('winston-daily-rotate-file');
 const moment = require('moment-timezone');
@@ -14,13 +15,42 @@ const logger = createLogger({
     timestamp({
       format: () => moment().tz("Africa/Kinshasa").format()
     }),
-    errors({ stack: true }), // Inclure la stack trace dans le format
     myFormat
   ),
   transports: [
-    new transports.Console(),
-    new transports.File({ filename: 'logs/error.log', level: 'error' }),
-    new transports.File({ filename: 'logs/combined.log' })
+    // Transport pour les logs 'info' uniquement
+    new transports.DailyRotateFile({
+      filename: 'logs/info-%DATE%.log',
+      datePattern: 'YYYY-MM-DD',
+      level: 'info', // Inclut uniquement les logs de niveau 'info'
+      format: combine(
+        timestamp({
+          format: () => moment().tz("Africa/Kinshasa").format()
+        }),
+        myFormat
+      )
+    }),
+    // Transport pour les logs 'error' uniquement
+    new transports.DailyRotateFile({
+      filename: 'logs/error-%DATE%.log',
+      datePattern: 'YYYY-MM-DD',
+      level: 'error', // Inclut uniquement les logs de niveau 'error'
+      format: combine(
+        timestamp({
+          format: () => moment().tz("Africa/Kinshasa").format()
+        }),
+        myFormat
+      )
+    }),
+    // Transport pour la sortie console (optionnel)
+    new transports.Console({
+      format: combine(
+        timestamp({
+          format: () => moment().tz("Africa/Kinshasa").format()
+        }),
+        myFormat
+      )
+    })
   ],
 });
 

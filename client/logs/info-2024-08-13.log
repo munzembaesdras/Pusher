@@ -1,0 +1,26 @@
+2024-08-13T20:07:09+01:00 [Pusher] info: Le serveur s'exécute sur le port 3006 
+2024-08-13T20:07:10+01:00 [Pusher] info: Données à envoyer aux serveurs: 
+2024-08-13T20:07:10+01:00 [Pusher] info: Données envoyées au serveur localhost pour la table $. 
+2024-08-13T20:07:10+01:00 [Pusher] info: Données récupérées et envoyée pour l'agence 192.168.11.102 
+2024-08-13T20:07:10+01:00 [Pusher] error: Erreur lors de la connexion à la base de données de l'agence 192.168.11.110: Access denied for user 'root'@'192.168.11.101' (using password: YES) Error: Access denied for user 'root'@'192.168.11.101' (using password: YES)
+    at Object.createConnection (C:\Users\Munze\Documents\Programming\Pusher\node_modules\mysql2\promise.js:253:31)
+    at getDbConnection (C:\Users\Munze\Documents\Programming\Pusher\client\index.js:71:34)
+    at syncDataFromAgencies (C:\Users\Munze\Documents\Programming\Pusher\client\index.js:102:28)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-13T20:07:20+01:00 [Pusher] error: Erreur lors de la connexion à la base de données de l'agence 10.60.59.143: connect ETIMEDOUT Error: connect ETIMEDOUT
+    at Object.createConnection (C:\Users\Munze\Documents\Programming\Pusher\node_modules\mysql2\promise.js:253:31)
+    at getDbConnection (C:\Users\Munze\Documents\Programming\Pusher\client\index.js:71:34)
+    at syncDataFromAgencies (C:\Users\Munze\Documents\Programming\Pusher\client\index.js:102:28)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-13T20:07:30+01:00 [Pusher] error: Erreur lors de la connexion à la base de données de l'agence 10.58.164.20: connect ETIMEDOUT Error: connect ETIMEDOUT
+    at Object.createConnection (C:\Users\Munze\Documents\Programming\Pusher\node_modules\mysql2\promise.js:253:31)
+    at getDbConnection (C:\Users\Munze\Documents\Programming\Pusher\client\index.js:71:34)
+    at syncDataFromAgencies (C:\Users\Munze\Documents\Programming\Pusher\client\index.js:102:28)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2024-08-13T20:07:34+01:00 [Pusher] info: Données reçues du client: 
+2024-08-13T20:07:35+01:00 [Pusher] info: Données de la table tb_agence traitées avec succès pour l'agence 192.168.11.102. 
+2024-08-13T20:07:40+01:00 [Pusher] error: Erreur lors de la connexion à la base de données de l'agence 10.58.54.250: connect ETIMEDOUT Error: connect ETIMEDOUT
+    at Object.createConnection (C:\Users\Munze\Documents\Programming\Pusher\node_modules\mysql2\promise.js:253:31)
+    at getDbConnection (C:\Users\Munze\Documents\Programming\Pusher\client\index.js:71:34)
+    at syncDataFromAgencies (C:\Users\Munze\Documents\Programming\Pusher\client\index.js:102:28)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)

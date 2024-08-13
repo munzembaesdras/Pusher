@@ -113,7 +113,7 @@ const syncDataToClients = async () => {
 
         sentData.push(Data);
 
-        await axios.post(`http://${clientIp}:3005/Pusher/sync`, Data);
+        await axios.post(`http://${clientIp}:3006/Pusher/sync`, Data);
       } catch (error) {
         logger.error(`Erreur d'envoi de données au client ${clientIp}:`, error);
       }
