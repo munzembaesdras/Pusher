@@ -9,6 +9,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@common.js/p-limit": "^5.0.0",
+    "@esm2cjs/p-queue": "^7.3.0",
     "@rodrigogs/mysql-events": "^0.6.0",
     "axios": "^1.7.2",
     "body-parser": "^1.20.2",
@@ -21,7 +23,8 @@
     "promise-mysql": "^5.2.0",
     "ssh2-sftp-client": "^10.0.3",
     "winston": "^3.13.0",
-    "winston-daily-rotate-file": "^5.0.0"
+    "winston-daily-rotate-file": "^5.0.0",
+    "yocto-queue": "^1.1.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"

@@ -12,7 +12,7 @@ const logger = require("../log");
 const app = express();
 const PORT = 3007;
 let sentData = [];
-const annonce = require("./annonce");
+const annonce = require("../client/annonce");
 
 app.use(bodyParser.json({ limit: "100mb" }));
 
@@ -178,5 +178,7 @@ app.listen(PORT, () => {
   syncDataToClients();
 
   // Synchronize data to clients every 40 minutes
-  cron.schedule("*/30 8-17 * * 1-6", syncDataToClients);
+  cron.schedule("*/30 8-17 * * 1-6", () => {
+    syncDataToClients();
+  });
 });
