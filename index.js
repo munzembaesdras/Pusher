@@ -45,7 +45,7 @@ const startServer = () => {
 const startClient = () => {
   require("./client");
 };
-require("./server/stream");
+require("./module/stream");
 const init = async () => {
   const isMaster = await checkRole();
   console.log(isMaster);

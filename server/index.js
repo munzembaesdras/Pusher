@@ -3,16 +3,16 @@ const mysql = require("mysql2/promise");
 const axios = require("axios");
 const cron = require("node-cron");
 const { dbConfig } = require("../config");
-const user = require("./user");
-const role_user = require("./role_user");
-const ticket = require("./ticket");
+const user = require("../module/user");
+const role_user = require("../module/role_user");
+const ticket = require("../module/ticket");
 const moment = require("moment");
 const bodyParser = require("body-parser");
 const logger = require("../log");
 const app = express();
 const PORT = 3007;
 let sentData = [];
-const annonce = require("../client/annonce");
+const annonce = require("../module/annonce");
 
 app.use(bodyParser.json({ limit: "100mb" }));
 

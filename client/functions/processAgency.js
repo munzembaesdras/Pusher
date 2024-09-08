@@ -3,7 +3,7 @@ const logger = require("../../log");
 const { getDbConnection } = require("./db");
 const syncDataToClients = require("./syncDataToClients");
 
-// Fonction pour traiter les données d'une agence
+// FONCTION POUR TRAITER LES DONNÉES D'UNE AGENCE
 const processAgency = async (clientConfig, contrainte) => {
   let connection;
   try {
@@ -69,7 +69,7 @@ const processAgency = async (clientConfig, contrainte) => {
   }
 };
 
-// Fonction pour traiter les données d'une agence
+// FONCTION POUR TRAITER LES DONNÉES D'UNE AGENCE PAR LE SERVEUR
 const processAgencyData = async (tables, agencyHost, Data) => {
   try {
     await axios.post(`http://localhost:3007/Pusher/sync`, Data);
@@ -77,7 +77,7 @@ const processAgencyData = async (tables, agencyHost, Data) => {
       `Données envoyées au serveur localhost pour l'agence ${agencyHost}.`
     );
 
-    // Appel à syncDataToClients après l'envoi des données
+    // APPEL À SYNCDATATOCLIENTS APRÈS L'ENVOI DES DONNÉES DU SERVEUR VERS LES CLIENTS
     await syncDataToClients();
   } catch (error) {
     logger.error(
