@@ -10,7 +10,9 @@ const getVideosFromDatabase = async () => {
   let connection;
   try {
     connection = await mysql.createConnection(dbConfig);
-    const [videos] = await connection.query("SELECT video_name, video_id, video_key FROM tb_video");
+    const [videos] = await connection.query(
+      "SELECT video_name, video_id, video_key FROM tb_video"
+    );
     logger.info(`Fetched ${videos.length} videos from database.`);
     return videos;
   } catch (error) {
@@ -27,7 +29,7 @@ const getVideosFromDatabase = async () => {
 // Fonction pour vérifier les vidéos manquantes et les télécharger
 const checkAndDownloadMissingVideos = async () => {
   const videos = await getVideosFromDatabase();
-  
+
   // Liste des vidéos manquantes
   const missingVideos = [];
 
@@ -49,7 +51,7 @@ const checkAndDownloadMissingVideos = async () => {
         host: sftpConfig.host,
         username: sftpConfig.username,
         password: sftpConfig.password,
-        port: sftpConfig.port
+        port: sftpConfig.port,
       });
 
       for (const video_name of missingVideos) {

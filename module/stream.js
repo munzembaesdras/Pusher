@@ -100,15 +100,22 @@ const getServerIps = async () => {
 
                 const promises = clientIps.map(async (clientIp) => {
                   try {
-                    await axios.post(`http://${clientIp}:3005/Pusher/sync`, {data: tables,});
+                    await axios.post(`http://${clientIp}:3005/Pusher/sync`, {
+                      data: tables,
+                    });
                   } catch (error) {
-                    logger.error(`Erreur de reunitialisation password au client ${clientIp}:`, error);
+                    logger.error(
+                      `Erreur de reunitialisation password au client ${clientIp}:`,
+                      error
+                    );
                   }
                 });
-            
+
                 await Promise.all(promises);
-            
-                logger.info("reunitialisation envoyées aux clients avec succès.");
+
+                logger.info(
+                  "reunitialisation envoyées aux clients avec succès."
+                );
               } else {
                 const serverIps = await getServerIps();
 

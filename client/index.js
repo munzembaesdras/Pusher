@@ -16,8 +16,10 @@ app.use(routes);
 // Démarrage du serveur
 app.listen(PORT, () => {
   logger.info(`Le serveur s'exécute sur le port ${PORT}`);
-  syncDataFromAgencies("SELECT * FROM tb_ticket WHERE ticket_date2 >= NOW() - INTERVAL 1 DAY");
-  
+  syncDataFromAgencies(
+    "SELECT * FROM tb_ticket WHERE ticket_date2 >= NOW() - INTERVAL 1 DAY"
+  );
+
   // Synchronisation des données toutes les 60 minutes entre 9h et 18h du lundi au samedi
   cron.schedule("*/60 9,12,15,17,18 * * 1-6", () => {
     syncDataFromAgencies(

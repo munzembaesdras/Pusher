@@ -8,9 +8,9 @@ module.exports = {
   },
   dbConfigClientTemplate: {
     user: "root",
-    port: 3306,
-    password: "Josam@3307",
-    database: "extratime"
+    port: 3307,
+    password: "admin",
+    database: "extratime2",
   },
   sftpConfig: {
     host: "192.168.11.101",
@@ -18,6 +18,7 @@ module.exports = {
     username: "ftp-user",
     password: "1234",
     remotePath: "/",
-    localPath: "C:/glassfish-4.1.2/glassfish4/glassfish/domains/domain1/applications/Extratimeplus/resources/main/video/",
+    localPath:
+      "C:/glassfish-4.1.2/glassfish4/glassfish/domains/domain1/applications/Extratimeplus/resources/main/video/",
   },
 };

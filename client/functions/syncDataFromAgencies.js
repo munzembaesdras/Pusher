@@ -15,7 +15,8 @@ const syncDataFromAgencies = async (contrainte) => {
     await Promise.all(
       clientDbConfigs.map(
         (clientConfig) =>
-          queue.add(() => processAgency(clientConfig, contrainte)) // Ajouter chaque tâche à la file d'attente
+          queue.add(() => processAgency(clientConfig, contrainte))
+         // Ajouter chaque tâche à la file d'attente
       )
     );
 

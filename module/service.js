@@ -70,7 +70,7 @@ module.exports = async function (records, connection) {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
 
-    const params = [ 
+    const params = [
       service_name,
       service_desc,
       service_create_user_id,

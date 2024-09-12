@@ -49,6 +49,7 @@ const processAgency = async (clientConfig, contrainte) => {
       logger.info("Données à envoyer aux serveurs:", Data);
 
       await processAgencyData(tables, clientConfig.host, Data);
+      
     } else {
       logger.error(
         `La contrainte est indéfinie ou invalide pour l'agence ${clientConfig.host}`
@@ -70,18 +71,27 @@ const processAgency = async (clientConfig, contrainte) => {
 };
 
 // FONCTION POUR TRAITER LES DONNÉES D'UNE AGENCE PAR LE SERVEUR
-const processAgencyData = async (tables, agencyHost, Data) => {
+const processAgencyData = async (tables, agencyHost, Data, connection) => {
   try {
     await axios.post(`http://localhost:3007/Pusher/sync`, Data);
-    logger.info(
-      `Données envoyées au serveur localhost pour l'agence ${agencyHost}.`
-    );
+    console.log(Data);
+    logger.info(`Données agence ${agencyHost} envoyées au serveur .`);
 
     // APPEL À SYNCDATATOCLIENTS APRÈS L'ENVOI DES DONNÉES DU SERVEUR VERS LES CLIENTS
-    await syncDataToClients();
   } catch (error) {
     logger.error(
-      `Erreur lors de l'envoi des données pour l'agence ${agencyHost}:`,
+      `Erreur lors de l'envoi des données de l'agence ${agencyHost} au serveur :`,
+      error
+    );
+  }
+  try {
+    console.log('je suis ici ');
+    
+    await syncDataToClients(connection);
+    logger.info(`Données serveur envoyée à l'agence ${agencyHost}.`);
+  } catch (error) {
+    logger.error(
+      `Erreur lors de l'envoi des données du serveur à l'agence ${agencyHost}:`,
       error
     );
   }

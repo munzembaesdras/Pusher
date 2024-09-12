@@ -2,6 +2,7 @@ const mysql = require("mysql2/promise");
 const dbConfig = require("../config");
 
 module.exports = async function (records, connection) {
+  console.log("je suis au annonnce \n")
   for (const record of records) {
     const { bande_annonce_key } = record;
 

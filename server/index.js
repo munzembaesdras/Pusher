@@ -34,8 +34,6 @@ app.post("/Pusher/sync", async (req, res) => {
         await role_user(records, connection);
       } else if (table === "tb_ticket") {
         await ticket(records, connection);
-      } else if (table === "tb_bande_annonce") {
-        await annonce(records, connection);
       }
       logger.info(`Données de la table ${table} traitées avec succès.`);
     } catch (error) {

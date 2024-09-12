@@ -12,7 +12,7 @@ module.exports = async function (records, connection) {
       [video_key]
     );
 
-    if (rows.length > 0) { 
+    if (rows.length > 0) {
       for (const row of rows) {
         for (const key in row) {
           if (row.hasOwnProperty(key)) {

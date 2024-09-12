@@ -1,5 +1,5 @@
 const moment = require("moment");
-const { getDbConnection } = require("./db");
+const { getDbConnection, getClientDbConfigs } = require("./db");
 const service = require("../../module/service");
 const partenaire = require("../../module/partenaire");
 const role = require("../../module/role");
@@ -8,6 +8,7 @@ const role_user = require("../../module/role_user");
 const video = require("../../module/video");
 const logger = require("../../log");
 const annonce = require("../../module/annonce");
+const { dbConfig, dbConfigClientTemplate } = require("../../config");
 
 // Fonction pour insérer les données dans les bases des clients
 async function insertDataToClients(data, connection) {
@@ -50,10 +51,8 @@ async function insertDataToClients(data, connection) {
 }
 
 // Fonction pour synchroniser les données avec les clients
-const syncDataToClients = async () => {
-  let connection;
+const syncDataToClients = async (connection) => {
   try {
-    connection = await getDbConnection();
 
     const [agences] = await connection.query("SELECT * FROM tb_agence");
     const [role] = await connection.query(
@@ -98,7 +97,7 @@ const syncDataToClients = async () => {
     const getClientConnections = async () => {
       try {
         const [clients] = await connection.query(
-          "SELECT agence_ip, agence_db_name FROM tb_agence"
+          "SELECT agence_ip, agence_nom FROM tb_agence"
         );
         return clients;
       } catch (error) {
@@ -133,7 +132,7 @@ const syncDataToClients = async () => {
           { table: "tb_video", records: filteredVideos },
         ];
 
-        await insertDataToClients(tables, clientDbConnection);
+        await insertDataToClients(tables, getClientDbConfigs);
 
         logger.info(
           `Données envoyées et insérées pour le client ${client.agence_ip} avec succès.`

@@ -15,14 +15,16 @@ module.exports = async function (records, connection) {
       for (const existingRole of existingRoles) {
         if (existingRole.role_status !== record.role_status) {
           for (const key in existingRole) {
-            console.log(`Le rôle "${role_nom}" existe déjà. Mise à jour des informations...`);
+            console.log(
+              `Le rôle "${role_nom}" existe déjà. Mise à jour des informations...`
+            );
             const newValue = record.role_status;
             await connection.execute(
               `UPDATE tb_role SET role_status = ? WHERE role_nom = ?`,
               [newValue, role_nom]
             );
           }
-        } else{
+        } else {
           console.log(`Le role ${existingRole.role_nom} existe deja`);
         }
       }
