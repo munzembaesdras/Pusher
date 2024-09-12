@@ -11,7 +11,7 @@ const role_user = require("../server/role_user");
 const moment = require("moment");
 const bodyParser = require("body-parser");
 const logger = require("../log");
-const video = require('./video')
+const video = require("./video");
 
 const app = express();
 const PORT = 3005;
@@ -65,7 +65,10 @@ app.post("/Pusher/sync", async (req, res) => {
       }
       logger.info(`Données de la table ${table} traitées avec succès.`);
     } catch (error) {
-      logger.error(`Erreur de traitement de donnée de la table ${table}:`, error);
+      logger.error(
+        `Erreur de traitement de donnée de la table ${table}:`,
+        error
+      );
     } finally {
       await connection.end();
       logger.info("Connexion à la base de données fermée.");
@@ -83,8 +86,20 @@ const syncDataToServer = async (contrainte) => {
     const [services] = await connection.query("SELECT * FROM tb_service");
     const [agencies] = await connection.query("SELECT * FROM tb_agence");
     const [tickets] = await connection.query(contrainte);
-    const [users] = await connection.query("SELECT * FROM tb_users");
-
+    const [users] = await connection.query(`
+      SELECT u.* FROM tb_ticket t 
+      JOIN tb_users u ON t.ticket_user_login = u.user_login 
+      WHERE t.ticket_date2 BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND CURDATE() 
+      GROUP BY u.user_login ORDER BY u.user_login ASC;
+    `);
+    const [role_user] = await connection.query(`
+      SELECT u.user_login, r.role_nom FROM tb_role_user ru 
+      JOIN tb_users u ON ru.user_id = u.user_id 
+      JOIN tb_role r ON ru.role_id = r.role_id 
+      JOIN tb_ticket t ON t.ticket_user_id = u.user_id  
+      WHERE t.ticket_date2 BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND CURDATE() 
+      GROUP BY u.user_id ASC;
+    `);
     // Format the date fields in users
     users.forEach((user) => {
       user.creation_date = moment(user.creation_date).format(
@@ -92,10 +107,6 @@ const syncDataToServer = async (contrainte) => {
       );
     });
     console.log(tickets);
-
-    const [role_user] = await connection.query(
-      "SELECT u.user_login, r.role_nom FROM tb_role_user ru JOIN tb_users u ON ru.user_id=u.user_id JOIN tb_role r ON ru.role_id=r.role_id"
-    );
 
     const tables = [
       { table: "tb_users", records: users },
