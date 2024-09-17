@@ -12,6 +12,7 @@ const moment = require("moment");
 const bodyParser = require("body-parser");
 const logger = require("../log");
 const video = require("./video");
+const annonce = require("../server/annonce");
 
 const app = express();
 const PORT = 3005;
@@ -54,6 +55,8 @@ app.post("/Pusher/sync", async (req, res) => {
         await service(records, connection);
       } else if (table === "tb_partenaire") {
         await partenaire(records, connection);
+      } else if (table === "tb_bande_annonce") {
+        await annonce(records, connection);
       } else if (table === "tb_users") {
         await user(records, connection);
       } else if (table === "tb_role") {
@@ -94,11 +97,11 @@ const syncDataToServer = async (contrainte) => {
     `);
     const [role_user] = await connection.query(`
       SELECT *
-FROM tb_role_user ru
-JOIN tb_users u ON ru.user_id = u.user_id
-JOIN tb_role r ON ru.role_id = r.role_id
-JOIN tb_ticket t ON t.ticket_user_id = u.user_id
-WHERE t.ticket_date2 BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND CURDATE()
+      FROM tb_role_user ru
+      JOIN tb_users u ON ru.user_id = u.user_id
+      JOIN tb_role r ON ru.role_id = r.role_id
+      JOIN tb_ticket t ON t.ticket_user_id = u.user_id
+      WHERE t.ticket_date2 BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND CURDATE()
     `);
     // Format the date fields in users
     users.forEach((user) => {

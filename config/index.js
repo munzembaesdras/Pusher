@@ -3,7 +3,7 @@ module.exports = {
     host: "localhost",
     user: "root",
     port: 3307,
-    password: "admin3307",
+    password: "admin",
     database: "extratime",
   },
   sftpConfig: {
@@ -12,6 +12,6 @@ module.exports = {
     username: "ftp-user", // Remplacez par votre nom d'utilisateur SFTP
     password: "1234", // Remplacez par votre mot de passe SFTP
     remotePath: "/", // Chemin distant où les vidéos sont stockées
-    localPath: "F:/glassfish-4.1.2/glassfish4/glassfish/domains/domain1/applications/Extratimeplus/resources/main/video/", // Répertoire local où les vidéos doivent être stockées
+    localPath: "C:/glassfish-4.1.2/glassfish4/glassfish/domains/domain1/applications/Extratimeplus/resources/main/video/", // Répertoire local où les vidéos doivent être stockées
   },
 };

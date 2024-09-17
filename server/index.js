@@ -54,6 +54,7 @@ const syncDataToClients = async () => {
 
     // Récupération des données des tables
     const [agences] = await connection.query("SELECT * FROM tb_agence");
+    const [annonnce]=await connection.query("SELECT * FROM tb_bande_annonce");
     const [role] = await connection.query("SELECT r.role_nom, r.role_status, p.partenairenom FROM tb_role r JOIN tb_partenaire p ON r.partenaire_id = p.partenaireid;");
     const [users] = await connection.query("SELECT * FROM tb_users");
     users.forEach(user => {
@@ -98,6 +99,7 @@ const syncDataToClients = async () => {
         );
 
         const tables = [
+          {tablee: "tb_bande_annonce", records: annonnce},
           { table: "tb_agence", records: agences },
           { table: "tb_service", records: filteredServices },
           { table: "tb_role", records: role },
