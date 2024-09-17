@@ -76,7 +76,7 @@ const syncDataToClients = async () => {
       let connection;
       try {
         connection = await getDbConnection();
-        const [rows] = await connection.query("SELECT agence_ip FROM tb_agence");
+        const [rows] = await connection.query("SELECT agence_ip FROM tb_agence WHERE agence_is_primary != 1");
         return rows.map(row => row.agence_ip);
       } catch (error) {
         logger.error("Erreur de récupération des IPs des clients:", error);
