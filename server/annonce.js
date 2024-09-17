@@ -46,7 +46,7 @@ module.exports = async function (records, connection) {
     const params = [
       bande_annonce_txt,
       bande_annonce_status,
-      bande_annonce_date,
+      new Date(bande_annonce_date).toISOString().slice(0, 19),
       bande_annonce_key,
     ];
     await connection.execute(sql, params);
