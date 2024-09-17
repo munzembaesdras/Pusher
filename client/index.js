@@ -93,12 +93,12 @@ const syncDataToServer = async (contrainte) => {
       GROUP BY u.user_login ORDER BY u.user_login ASC;
     `);
     const [role_user] = await connection.query(`
-      SELECT u.user_login, r.role_nom FROM tb_role_user ru 
-      JOIN tb_users u ON ru.user_id = u.user_id 
-      JOIN tb_role r ON ru.role_id = r.role_id 
-      JOIN tb_ticket t ON t.ticket_user_id = u.user_id  
-      WHERE t.ticket_date2 BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND CURDATE() 
-      GROUP BY u.user_id ASC;
+      SELECT *
+FROM tb_role_user ru
+JOIN tb_users u ON ru.user_id = u.user_id
+JOIN tb_role r ON ru.role_id = r.role_id
+JOIN tb_ticket t ON t.ticket_user_id = u.user_id
+WHERE t.ticket_date2 BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND CURDATE()
     `);
     // Format the date fields in users
     users.forEach((user) => {
