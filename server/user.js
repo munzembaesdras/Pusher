@@ -1,7 +1,7 @@
 module.exports = async function (records, connection) {
     for (const record of records) {
       const { user_login } = record;
-  
+      const version_entr = record.version;
       // Vérifiez si la clé existe déjà
       
       const [rows] = await connection.execute(
@@ -11,16 +11,21 @@ module.exports = async function (records, connection) {
     
       if (rows.length > 0) {
         for (const row of rows) {
+          const version_exist = row.version;
           for (const key in row) {
             //console.log(record[key]); il y a un undefind here
             if (row.hasOwnProperty(key)) {
               if (key !== "user_is_connect" && key !== "user_id" && row[key] !== record[key]) {
-                let newValue = record[key];
-                let param = [newValue, row.user_login];
+                if( version_entr > version_exist){
+                  let newValue = record[key];
+                  let param = [newValue, row.user_login];
                 await connection.execute(
                   `UPDATE tb_users set ${key}=? where user_login=?`,
                   param
                 );
+               }else{
+                continue;
+               }
             }
             }
           }
