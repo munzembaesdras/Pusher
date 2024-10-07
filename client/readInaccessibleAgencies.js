@@ -1,7 +1,23 @@
-const readInaccessibleAgenciesLog = async () => {
+const fs = require("fs");
+const mysql = require("mysql2/promise");
+const logger = require("../log");
+const { dbConfigClientTemplate } = require("../config");
+
+module.exports = async function () {
   try {
     const data = fs.readFileSync("logs/inaccessible-agencies.log", "utf-8");
-    const logEntries = data.split("\n").filter(Boolean).map(JSON.parse);
+    const lines = data.split("\n").filter(Boolean);
+
+    const logEntries = lines
+      .map((line) => {
+        try {
+          return JSON.parse(line);
+        } catch (error) {
+          logger.error("Erreur de parsing JSON sur la ligne : ", line);
+          return null; // Ignore cette ligne si elle ne peut pas être parsée
+        }
+      })
+      .filter(Boolean); // On filtre les nulls résultants des erreurs de parsing
 
     // Extraire les agences et les dates d'inaccessibilité
     const agencyEntries = logEntries.map((entry) => ({

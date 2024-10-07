@@ -20,7 +20,7 @@ const wehereTciket =
   "SELECT * FROM tb_ticket WHERE ticket_date2 BETWEEN '2024-10-02' AND '2024-10-02'";
 let JSONs;
 app.use(bodyParser.json({ limit: "100mb" }));
-const { readInaccessibleAgenciesLog } = require("./readInaccessibleAgencies");
+const readInaccessibleAgenciesLog = require("./readInaccessibleAgencies"); // Importer correctement
 
 const inaccessibleLogger = winston.createLogger({
   format: winston.format.combine(
@@ -37,9 +37,23 @@ const inaccessibleLogger = winston.createLogger({
   ],
 });
 
-// Route pour recevoir les données des clients
+// Fonction pour logger les agences inaccessibles
+const logInaccessibleAgency = (clientConfig) => {
+  const currentHour = moment().hour(); // Récupère l'heure actuelle
 
-// RECUPERATION DES DONNEES DE LA BASE DE DONNEES CENTRALE */
+  // Vérifie si l'heure actuelle est entre 16h et 17h
+  if (currentHour >= 16 && currentHour < 17) {
+    inaccessibleLogger.error("Agence inaccessible", {
+      agence: clientConfig.host,
+      date_inaccessible: moment().format("YYYY-MM-DD HH:mm:ss"),
+    });
+    console.log(`Agence ${clientConfig.host} signalée comme inaccessible.`);
+  } else {
+    console.log(
+      `Heure actuelle ${currentHour}h: aucune log d'inaccessibilité enregistrée pour ${clientConfig.host}.`
+    );
+  }
+};
 
 const getDbConnection = async (config) => {
   const connection = await mysql.createConnection(config);
@@ -51,7 +65,8 @@ const getClientDbConfigs = async () => {
   try {
     connection = await getDbConnection(dbConfig); // Connexion au serveur central
     const [agencies] = await connection.query(
-      "SELECT t.agence_ip, t.agence_nom FROM tb_agence t JOIN tb_region_agence ra ON ra.agence_id=t.agence_id JOIN tb_region r ON r.region_id=ra.region_id WHERE r.region_nom='SUD';" // Récupérer les adresses des bases de données des agences
+      `SELECT t.agence_ip, t.agence_nom FROM tb_agence t`
+      //"SELECT t.agence_ip, t.agence_nom FROM tb_agence t JOIN tb_region_agence ra ON ra.agence_id=t.agence_id JOIN tb_region r ON r.region_id=ra.region_id  WHERE r.region_nom='SUD';"  Récupérer les adresses des bases de données des agences
     );
     return agencies.map((agency) => ({
       host: agency.agence_ip,
@@ -93,9 +108,9 @@ const syncDataFromAgencies = async (contrainte) => {
 
           // Récupération des utilisateurs associés aux tickets récents
           const [users] = await connection.query(`SELECT u.* FROM tb_ticket t 
-			JOIN tb_users u ON t.ticket_user_login = u.user_login 
-			WHERE t.ticket_date2 BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND CURDATE() 
-			GROUP BY u.user_login ORDER BY u.user_login ASC;`);
+            JOIN tb_users u ON t.ticket_user_login = u.user_login 
+            WHERE t.ticket_date2 BETWEEN DATE_SUB(CURDATE(), INTERVAL 1 WEEK) AND CURDATE() 
+            GROUP BY u.user_login ORDER BY u.user_login ASC;`);
 
           // Formater les dates des utilisateurs
           users.forEach((user) => {
@@ -107,10 +122,10 @@ const syncDataFromAgencies = async (contrainte) => {
           // Récupération des rôles des utilisateurs
           const [role_user] = await connection.query(`
             SELECT u.user_login, r.role_nom FROM tb_role_user ru 
-			JOIN tb_users u ON ru.user_id = u.user_id 
-			JOIN tb_role r ON ru.role_id = r.role_id 
-			JOIN tb_ticket t ON t.ticket_user_id = u.user_id  WHERE t.ticket_date2 >= NOW() - INTERVAL 4 DAY  
-			GROUP BY u.user_id ASC;`);
+            JOIN tb_users u ON ru.user_id = u.user_id 
+            JOIN tb_role r ON ru.role_id = r.role_id 
+            JOIN tb_ticket t ON t.ticket_user_id = u.user_id  WHERE t.ticket_date2 >= NOW() - INTERVAL 4 DAY  
+            GROUP BY u.user_id ASC;`);
 
           // Préparer les données à envoyer
           const tables = [
@@ -133,10 +148,7 @@ const syncDataFromAgencies = async (contrainte) => {
           );
         }
       } catch (error) {
-        inaccessibleLogger.error("Agence inaccessible", {
-          agence: clientConfig.host,
-          date_inaccessible: moment().format("YYYY-MM-DD HH:mm:ss"),
-        });
+        logInaccessibleAgency(clientConfig.host);
         logger.error(
           `Erreur lors de la connexion ou de la requête pour l'agence ${clientConfig.host}:`,
           error
@@ -194,6 +206,7 @@ app.get("/Pusher/sync", async (req, res) => {
 app.listen(PORT, () => {
   logger.info(`Le serveur s'exécute sur le port ${PORT}`);
   syncDataFromAgencies(wehereTciket);
+
   // Synchronize data every 40 minutes between 8 AM and 5 PM from Monday to Saturday
   cron.schedule("*/60 9,12,15,17,18 * * 1-6", () => {
     syncDataFromAgencies(
@@ -201,7 +214,7 @@ app.listen(PORT, () => {
     );
   });
   // Exécuter le script chaque 28 du mois à 23h00
-  cron.schedule("0 23 28 * *", () => {
+  cron.schedule("*/1 * 6 * *", () => {
     logger.info(
       "Exécution de la lecture du fichier de log des agences inaccessibles."
     );
