@@ -42,7 +42,7 @@ const getServerIps = async () => {
   }
 };
 
-// RECUPERATION ET TRAITEMENT DES DONNÉES RECU PAR LE CLIENT
+// RECUPERATION ET TRAITEMENT DES DONNÉES VENANT DU LE SERVER
 app.post("/Pusher/sync", async (req, res) => {
   const { data } = req.body;
   logger.info("Données reçues du client:", data);
@@ -86,8 +86,6 @@ const syncDataToServer = async (contrainte) => {
   try {
     connection = await getDbConnection();
 
-    const [services] = await connection.query("SELECT * FROM tb_service");
-    const [agencies] = await connection.query("SELECT * FROM tb_agence");
     const [tickets] = await connection.query(contrainte);
     const [users] = await connection.query(`
       SELECT u.* FROM tb_ticket t 
@@ -144,10 +142,11 @@ const syncDataToServer = async (contrainte) => {
   }
 };
 
+// SYNCHRONISATION FORCÉE DES DONNÉES AVEC LE SERVER
 app.get("/Pusher/sync", async (req, res) => {
   try {
     await syncDataToServer(
-      "SELECT * FROM tb_ticket WHERE YEAR(ticket_date2) = YEAR(CURDATE());"
+      "SELECT * FROM tb_ticket WHERE MONTH(ticket_date2) = MONTH(CURDATE()) AND YEAR(ticket_date2) = YEAR(CURDATE());"
     );
 
     res.send(JSONs);
@@ -163,5 +162,5 @@ app.listen(PORT, () => {
   logger.info(`Le serveur s'exécute sur le port ${PORT}`);
   syncDataToServer(wehereTciket);
   // Synchronize data to clients every 40 minutes
-  cron.schedule("*/15 8-17 * * 1-6", () => syncDataToServer(wehereTciket));
+  cron.schedule("*/30 8-17 * * 1-6", () => syncDataToServer(wehereTciket));
 });
