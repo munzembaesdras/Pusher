@@ -17,7 +17,7 @@ const annonce = require("../server/annonce");
 const app = express();
 const PORT = 3005;
 const wehereTciket =
-  "SELECT * FROM tb_ticket WHERE ticket_date2 >= NOW() - INTERVAL 3 DAY";
+  "SELECT * FROM tb_ticket WHERE ticket_date2 >= NOW() - INTERVAL 1 DAY";
 let JSONs;
 app.use(bodyParser.json({ limit: "100mb" }));
 
@@ -162,5 +162,8 @@ app.listen(PORT, () => {
   logger.info(`Le serveur s'exécute sur le port ${PORT}`);
   syncDataToServer(wehereTciket);
   // Synchronize data to clients every 40 minutes
-  cron.schedule("*/30 8-17 * * 1-6", () => syncDataToServer(wehereTciket));
+  cron.schedule("*/30 8-17 * * 1-6", () =>
+{ syncDataToServer(wehereTciket)
+}
+);
 });
